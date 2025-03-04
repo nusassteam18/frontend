@@ -62,40 +62,36 @@ export default {
       password: '',
     }
   },
-  methods: {
-    async registerUser() {
-      // Example fetch request to a backend endpoint '/api/register'
-      // Adjust the URL and payload according to your actual backend setup.
-      try {
-        const response = await fetch('/api/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            firstName: this.firstName,
-            lastName: this.lastName,
-            email: this.email,
-            password: this.password,
-            // You can explicitly send the role as 'Customer' or let your backend default to it:
-            role: 'Customer'
-          })
-        })
 
-        if (response.ok) {
-          // Registration successful
-          alert('Registration successful! Please log in.')
-          // Redirect user to a Login page (or wherever you wish)
-          this.$router.push('/login')
-        } else {
-          // Registration failed (e.g., email already taken)
-          const errorData = await response.json()
-          alert('Registration failed: ' + (errorData.message || 'Unknown error'))
-        }
-      } catch (error) {
-        console.error('Registration error:', error)
-        alert('An error occurred during registration.')
+methods: {
+  async registerUser() {
+    try {
+      const response = await fetch('http://localhost:3000/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: this.firstName,
+          lastName: this.lastName,
+          email: this.email,
+          password: this.password,
+          role: 'Customer' // or let the server default to Customer
+        })
+      })
+
+      if (response.ok) {
+        alert('Registration successful! Please log in.')
+        this.$router.push('/login')
+      } else {
+        const errorData = await response.json()
+        alert('Registration failed: ' + errorData.message)
       }
+    } catch (error) {
+      console.error('Registration error:', error)
+      alert('An error occurred during registration.')
     }
   }
+}
+
 }
 </script>
 
