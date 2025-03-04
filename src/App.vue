@@ -3,9 +3,22 @@
     <router-link to="/">Home</router-link> |
     <router-link to="/menu">Menu</router-link> |
     <router-link to="/cart">Cart</router-link> |
-    <router-link to="/about">About</router-link>
+    <router-link to="/about">About</router-link> |
+    
+    <!-- If user is NOT logged in, show Register & Login links -->
+    <span v-if="!isLoggedIn">
+      <router-link to="/register">Register</router-link> |
+      <router-link to="/login">Login</router-link>
+    </span>
+    
+    <!-- If user IS logged in, show Logout button -->
+    <span v-else>
+      <button @click="logout">Logout</button>
+    </span>
   </nav>
-  <router-view/>
+
+  <!-- Render the route's component (e.g., Home, Menu, Register, etc.) -->
+  <router-view />
 </template>
 
 <style>
