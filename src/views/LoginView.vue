@@ -34,6 +34,7 @@
   justify-content: center;
   display: flex;
   position: relative;
+  background-color: #ffa500;
 }
 
 .login-user {
@@ -94,11 +95,12 @@ h2 {
   font-family: 'Pacifico', cursive;
   position: absolute;
   transform: translateY(-50%);
-  left: 20px;
   font-size: 3rem;
   font-weight: bold;
-  margin-right: 20px;
+  letter-spacing: 2px;
+  margin-right: 900px;
   white-space: pre-wrap;
-  margin-left: 20px;
 }
+
+
 </style>
