@@ -3,7 +3,9 @@
     <router-link to="/">Home</router-link> |
     <router-link to="/menu">Menu</router-link> |
     <router-link to="/cart">Cart</router-link> |
+    <router-link to="/payment">Payment</router-link> |
     <router-link to="/about">About</router-link> |
+    <router-link to="/admin">Admin</router-link> |
     
     <!-- If user is NOT logged in, show Register & Login links -->
     <span v-if="!isLoggedIn">
