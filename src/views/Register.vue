@@ -49,11 +49,7 @@
       <button type="submit" class="register-button">Register</button>
     </form>
 
-    <div class="forgot-password-container">
-      <button type="button" class="forgot-password-button" @click="goToResetPassword">
-        Forgot Password?
-      </button>
-    </div>
+
   </div>
 </template>
 
@@ -160,21 +156,4 @@ export default {
   background-color: #218838;
 }
 
-/* Forgot password */
-.forgot-password-container {
-  margin-top: 10px;
-}
-
-.forgot-password-button {
-  background: none;
-  border: none;
-  color: #28a745;
-  font-weight: bold;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.forgot-password-button:hover {
-  color: #218838;
-}
 </style>
