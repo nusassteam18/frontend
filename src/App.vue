@@ -1,6 +1,7 @@
 <template>
   <nav>
     <router-link to="/">Home</router-link> |
+    <router-link to="/login">Login</router-link> |
     <router-link to="/menu">Menu</router-link> |
     <router-link to="/cart">Cart</router-link> |
     <router-link to="/payment">Payment</router-link> |
