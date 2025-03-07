@@ -79,3 +79,69 @@ app.post('/api/register', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
 })
+
+
+// 1) Require jsonwebtoken at the top
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = 'YOUR_SECRET_KEY'; // Replace with an env variable in production
+
+// 2) Add the login endpoint
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  // Check for missing fields
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Missing email or password.' });
+  }
+
+  // 3) Check if user exists
+  const checkQuery = 'SELECT * FROM users WHERE email = ?';
+  db.query(checkQuery, [email], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Server error.' });
+    }
+
+    // If no user found
+    if (results.length === 0) {
+      return res.status(400).json({ message: 'Invalid credentials.' });
+    }
+
+    const user = results[0];
+
+    // 4) Compare password using bcrypt
+    const bcrypt = require('bcrypt');
+    bcrypt.compare(password, user.password, (compareErr, isMatch) => {
+      if (compareErr) {
+        console.error('Error comparing passwords:', compareErr);
+        return res.status(500).json({ message: 'Server error.' });
+      }
+
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid credentials.' });
+      }
+
+      // 5) Password is correct => generate a JWT token
+      // Embed userId and role in the token payload
+      const token = jwt.sign(
+        { userId: user.userId, role: user.role },
+        SECRET_KEY,
+        { expiresIn: '1h' } // token expires in 1 hour
+      );
+
+      // 6) Return token to client
+      res.json({
+        message: 'Login successful.',
+        token: token,
+        // Optionally return user details if you need them on the frontend
+        user: {
+          userId: user.userId,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role
+        }
+      });
+    });
+  });
+});
+
