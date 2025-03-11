@@ -11,6 +11,7 @@
 
     <span v-else>
       <router-link to="/profile">Profile</router-link> |
+      <router-link to="/updateProfile/:id">Update Profile</router-link> |
       <template v-if="userRole === 'Customer'">
         <router-link to="/orders">Orders</router-link> |
         <router-link to="/cart">Cart</router-link> |

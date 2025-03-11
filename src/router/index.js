@@ -39,7 +39,13 @@ const routes = [
     name: 'register',
     component: () => import(/* webpackChunkName: "register" */ '../views/Register.vue')
   },
-  
+
+  {
+    path: '/updateProfile/:id',
+    name: 'updateProfile',
+    component: () => import(/* webpackChunkName: "register" */ '../views/UpdateUser.vue')
+  },
+
   {
     path: '/admin',
     name: 'admin',
