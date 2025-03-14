@@ -32,6 +32,7 @@
 <script>
 import menuService from "@/services/menuService";
 import cartStore from "@/store/cart";
+import { authState } from "@/services/auth";
 
 export default {
   name: "MenuView",
@@ -62,6 +63,14 @@ export default {
       }
     },
     addToCart(item) {
+      // Check if user is logged in
+      if (!authState.token) {
+        alert("Please log in to add items to your cart.");
+        this.$router.push("/login");
+        return;
+      }
+      
+      // User is logged in, proceed with adding to cart
       cartStore.addToCart(item);
       this.$forceUpdate(); // Force update to refresh cart count
 
