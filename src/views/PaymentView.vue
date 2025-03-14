@@ -124,6 +124,7 @@ export default {
     // Handle Pay button click
     payOrder() {
       alert('Paid');
+      this.$router.push("/restaurant");
     },
     // Handle Cancel button click
     cancelOrder() {
