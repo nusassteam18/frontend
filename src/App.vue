@@ -1,7 +1,6 @@
 <template>
   <nav>
     <router-link to="/">Restaurant</router-link> |
-    <router-link to="/menu">Menu</router-link> |
     <router-link to="/about">About</router-link> |
 
     <span v-if="!isLoggedIn">

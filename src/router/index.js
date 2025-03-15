@@ -15,16 +15,14 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
   },
-  
   {
-    path: '/menu',
-    name: 'menu',
+    path: '/restaurant/:restaurantId/menu',
+    name: 'restaurantMenu',
     component: () => import(/* webpackChunkName: "menu" */ '../views/MenuView.vue')
   },
-  
   {
-    path: '/cart',
-    name: 'cart',
+    path: '/cart/:restaurantId',
+    name: 'restaurantCart',
     component: () => import(/* webpackChunkName: "cart" */ '../views/CartView.vue')
   },
 
