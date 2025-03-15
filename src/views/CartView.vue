@@ -217,18 +217,20 @@ export default {
     
     checkout() {
       // In a real app, this would redirect to a checkout page or process
-      const restaurantName = this.restaurant?.name || this.getRestaurantName(this.selectedRestaurantId);
-      alert(`Order placed successfully for ${restaurantName}!\nTotal: $${this.total.toFixed(2)}`);
+      // const restaurantName = this.restaurant?.name || this.getRestaurantName(this.selectedRestaurantId);
+
+      this.$router.push("/payment");
+      // alert(`Order placed successfully for ${restaurantName}!\nTotal: $${this.total.toFixed(2)}`);
       
-      // Clear just this restaurant's cart
-      cartStore.clearCart(this.selectedRestaurantId);
+      // // Clear just this restaurant's cart
+      // cartStore.clearCart(this.selectedRestaurantId);
       
-      // Redirect to the appropriate page
-      if (this.restaurant) {
-        this.$router.push(`/restaurant/${this.selectedRestaurantId}/menu`);
-      } else {
-        this.$router.push('/menu');
-      }
+      // // Redirect to the appropriate page
+      // if (this.restaurant) {
+      //   this.$router.push(`/restaurant/${this.selectedRestaurantId}/menu`);
+      // } else {
+      //   this.$router.push('/menu');
+      // }
     },
   },
   watch: {
