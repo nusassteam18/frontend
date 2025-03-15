@@ -138,9 +138,8 @@ export default {
     },
     checkout() {
       // In a real app, this would redirect to a checkout page or process
-      alert(`Order placed successfully!\nTotal: $${this.total.toFixed(2)}`);
-      cartStore.clearCart();
-      this.$router.push("/menu");
+      //cartStore.clearCart();
+      this.$router.push("/payment");
     },
   },
   created() {

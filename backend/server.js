@@ -1,10 +1,13 @@
 // server.js
 const express = require('express')
-const mysql = require('mysql2')  
+const mysql = require('mysql2')
 const cors = require('cors')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
 const app = express()
 const PORT = 3000
+const SECRET_KEY = 'YOUR_SECRET_KEY'  // Use an environment variable in production
 
 app.use(cors())
 app.use(express.json()) // to parse JSON bodies
@@ -13,8 +16,8 @@ app.use(express.json()) // to parse JSON bodies
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '', 
-  database: 'nus_team18_db' 
+  password: '',
+  database: 'nus_team18_db'
 })
 
 // Connect to the database
@@ -26,122 +29,169 @@ db.connect((err) => {
   console.log('Connected to MySQL database.')
 })
 
-
-// post api to call when user register 
+/* =======================
+   REGISTER ENDPOINT
+   ======================= */
 app.post('/api/register', (req, res) => {
-  const { firstName, lastName, email, password, role } = req.body;
+  const { firstName, lastName, email, password, role } = req.body
 
-  // Validate required fields 
   if (!firstName || !lastName || !email || !password) {
-    return res.status(400).json({ message: 'Missing required fields.' });
+    return res.status(400).json({ message: 'Missing required fields.' })
   }
-  
-  // Check if a user with this email already exists
-  const checkQuery = 'SELECT * FROM users WHERE email = ?';
+
+  const checkQuery = 'SELECT * FROM users WHERE email = ?'
   db.query(checkQuery, [email], (checkErr, checkResults) => {
     if (checkErr) {
-      console.error('Error checking email:', checkErr);
-      return res.status(500).json({ message: 'Server error.' });
+      console.error('Error checking email:', checkErr)
+      return res.status(500).json({ message: 'Server error.' })
     }
     if (checkResults.length > 0) {
-      return res.status(400).json({ message: 'Email is already in use.' });
+      return res.status(400).json({ message: 'Email is already in use.' })
     }
 
-    // password hasing using bcrypt
-    const bcrypt = require('bcrypt');
-    const saltRounds = 10;
-
+    const saltRounds = 10
     bcrypt.hash(password, saltRounds)
       .then(hashedPassword => {
         const insertQuery = `
           INSERT INTO users (firstName, lastName, email, password, role)
           VALUES (?, ?, ?, ?, ?)
-        `;
+        `
         db.query(
           insertQuery,
           [firstName, lastName, email, hashedPassword, role || 'Customer'],
           (insertErr, insertResults) => {
             if (insertErr) {
-              console.error('Error inserting user:', insertErr);
-              return res.status(500).json({ message: 'Server error.' });
+              console.error('Error inserting user:', insertErr)
+              return res.status(500).json({ message: 'Server error.' })
             }
-            return res.status(201).json({ message: 'User registered successfully.' });
+            return res.status(201).json({ message: 'User registered successfully.' })
           }
-        );
+        )
       })
       .catch(error => {
-        console.error('Error hashing password:', error);
-        return res.status(500).json({ message: 'Server error.' });
-      });
-  });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`)
+        console.error('Error hashing password:', error)
+        return res.status(500).json({ message: 'Server error.' })
+      })
+  })
 })
 
-
-// 1) Require jsonwebtoken at the top
-const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'YOUR_SECRET_KEY'; // Replace with an env variable in production
-
-// 2) Add the login endpoint
+/* =======================
+   LOGIN ENDPOINT
+   ======================= */
 app.post('/api/login', (req, res) => {
-  const { email, password } = req.body;
-  
-  // Check for missing fields
+  const { email, password } = req.body
+
   if (!email || !password) {
-    return res.status(400).json({ message: 'Missing email or password.' });
+    return res.status(400).json({ message: 'Missing email or password.' })
   }
 
-  // 3) Check if user exists
-  const checkQuery = 'SELECT * FROM users WHERE email = ?';
+  const checkQuery = 'SELECT * FROM users WHERE email = ?'
   db.query(checkQuery, [email], (err, results) => {
     if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ message: 'Server error.' });
+      console.error('Database error:', err)
+      return res.status(500).json({ message: 'Server error.' })
     }
 
-    // If no user found
     if (results.length === 0) {
-      return res.status(400).json({ message: 'Invalid credentials.' });
+      return res.status(400).json({ message: 'Invalid credentials.' })
     }
 
-    const user = results[0];
+    const user = results[0]
 
-    // 4) Compare password using bcrypt
-    const bcrypt = require('bcrypt');
     bcrypt.compare(password, user.password, (compareErr, isMatch) => {
       if (compareErr) {
-        console.error('Error comparing passwords:', compareErr);
-        return res.status(500).json({ message: 'Server error.' });
+        console.error('Error comparing passwords:', compareErr)
+        return res.status(500).json({ message: 'Server error.' })
       }
 
       if (!isMatch) {
-        return res.status(401).json({ message: 'Invalid credentials.' });
+        return res.status(401).json({ message: 'Invalid credentials.' })
       }
 
-      // 5) Password is correct => generate a JWT token
-      // Embed userId and role in the token payload
+      // Use user.id as the identifier
       const token = jwt.sign(
-        { userId: user.userId, role: user.role },
+        { userId: user.id, role: user.role },
         SECRET_KEY,
-        { expiresIn: '1h' } // token expires in 1 hour
-      );
+        { expiresIn: '1h' }
+      )
 
-      // 6) Return token to client
       res.json({
         message: 'Login successful.',
         token: token,
-        // Optionally return user details if you need them on the frontend
         user: {
-          userId: user.userId,
+          userId: user.id,  // note: using user.id (PK is 'id')
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role
         }
-      });
-    });
-  });
-});
+      })
+    })
+  })
+})
 
+/* =======================
+   GET USER PROFILE ENDPOINTS
+   ======================= */
+
+// 1) GET base user info (excluding password)
+app.get('/api/users/:id', (req, res) => {
+  const userId = req.params.id
+  const sql = 'SELECT id, firstName, lastName, email, role FROM users WHERE id = ?'
+
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching user:', err)
+      return res.status(500).json({ message: 'Server error.' })
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'User not found.' })
+    }
+    res.json(results[0])
+  })
+})
+
+// 2) GET customer-specific info by userId
+app.get('/api/customers/:id', (req, res) => {
+  const userId = req.params.id
+  const sql = `
+    SELECT contactNo, creditCardNo, creditCardName, 
+           creditCardExpiryDate, creditCardSecurityCode, homeAddress
+    FROM customers
+    WHERE userId = ?
+  `
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching customer info:', err)
+      return res.status(500).json({ message: 'Server error.' })
+    }
+    // Return empty object if no record found
+    if (results.length === 0) {
+      return res.json({})
+    }
+    res.json(results[0])
+  })
+})
+
+// 3) GET admin-specific info by userId
+app.get('/api/admins/:id', (req, res) => {
+  const userId = req.params.id
+  const sql = 'SELECT restaurantId FROM admins WHERE userId = ?'
+  
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching admin info:', err)
+      return res.status(500).json({ message: 'Server error.' })
+    }
+    if (results.length === 0) {
+      return res.json({})
+    }
+    res.json(results[0])
+  })
+})
+
+/* =======================
+   START THE SERVER
+   ======================= */
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`)
+})

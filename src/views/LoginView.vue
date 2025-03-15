@@ -49,7 +49,7 @@
 </template>
 
 <script>
-// Import the setAuth helper from global auth module.
+// Import the setAuth helper from your auth module.
 import { setAuth } from '@/services/auth'
 
 export default {
@@ -62,37 +62,48 @@ export default {
   },
   methods: {
     async loginUser() {
-      try {
-        const response = await fetch('http://localhost:3000/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: this.email,
-            password: this.password
-          })
-        })
+  try {
+    const response = await fetch('http://localhost:3000/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: this.email,
+        password: this.password
+      })
+    })
 
-        if (!response.ok) {
-          const errorData = await response.json()
-          alert(`Login failed: ${errorData.message || 'Invalid credentials'}`)
-          return
-        }
+    if (!response.ok) {
+      const errorData = await response.json()
+      alert(`Login failed: ${errorData.message || 'Invalid credentials'}`)
+      return
+    }
 
-        const data = await response.json()
-        
-        // Update the global auth state with the returned token and user details.
-        if (data.token) {
-          setAuth(data.token, data.user.role, data.user.userId)
-        }
-        
-        alert('Login successful!')
-        // Redirect to homepage (which should now show the updated menu).
-        this.$router.push('/')
-      } catch (error) {
-        console.error('Login error:', error)
-        alert('An error occurred during login.')
-      }
-    },
+    const data = await response.json()
+    console.log('Login response data:', data)
+
+    // Check for userId: use data.user.userId if present, otherwise use data.user.id
+    const userId = data.user.userId || data.user.id
+    console.log('Extracted userId:', userId)
+
+    if (data.token && userId) {
+      setAuth(data.token, data.user.role, userId)
+      console.log('After setAuth: authToken =', localStorage.getItem('authToken'))
+      console.log('After setAuth: userRole =', localStorage.getItem('userRole'))
+      console.log('After setAuth: userId =', localStorage.getItem('userId'))
+    } else {
+      console.error('Token or userId is missing in response.')
+      alert('Login failed: Token or user ID is missing.')
+      return
+    }
+
+    alert('Login successful!')
+    this.$router.push('/')
+  } catch (error) {
+    console.error('Login error:', error)
+    alert('An error occurred during login.')
+  }
+}
+,
     goToForgotPassword() {
       this.$router.push('/forgot-password')
     }
@@ -109,7 +120,6 @@ export default {
   position: relative;
   background-color: #ffa500; /* Orange background */
 }
-
 .login-user {
   background-color: #c8e6c9; /* Light green background */
   padding: 20px;
@@ -117,18 +127,15 @@ export default {
   width: 300px;
   box-shadow: 4px 2px 5px rgba(0, 0, 0, 0.1);
 }
-
 .input-user {
   margin-bottom: 15px;
   text-align: left;
   align-items: flex-start;
 }
-
 .button-sub {
   display: block;
   margin-top: 10px;
 }
-
 button.btn {
   margin-top: 25px;
   width: 100%;
@@ -140,11 +147,9 @@ button.btn {
   border: none;
   cursor: pointer;
 }
-
 button.btn:hover {
   background-color: #1b5e20; /* Even darker on hover */
 }
-
 .input-user label {
   font-size: 15px;
   display: block;
@@ -152,7 +157,6 @@ button.btn:hover {
   line-height: 1.4;
   margin-bottom: 5px;
 }
-
 .input-user input {
   width: 100%;
   padding: 10px;
@@ -161,12 +165,10 @@ button.btn:hover {
   font-size: 15px;
   box-sizing: border-box;
 }
-
 h2 {
   text-align: center;
   margin-bottom: 40px;
 }
-
 .r-name {
   display: flex;
   flex-direction: column;
@@ -181,13 +183,10 @@ h2 {
   margin-right: 900px;
   white-space: pre-wrap;
 }
-
-/* Styling for the Forgot Password button */
 .forgot-password {
   margin-top: 15px;
   text-align: center;
 }
-
 .forgot-btn {
   background: none;
   border: none;
@@ -196,7 +195,6 @@ h2 {
   text-decoration: underline;
   cursor: pointer;
 }
-
 .forgot-btn:hover {
   color: #1b5e20;
 }
