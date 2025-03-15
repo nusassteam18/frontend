@@ -1,12 +1,26 @@
 <template>
   <div class="cart">
-    <h1>Your Cart</h1>
+    <div v-if="restaurant" class="restaurant-info">
+      <h1>{{ restaurant.name }} Cart</h1>
+      <p class="restaurant-description">{{ restaurant.description }}</p>
+    </div>
+    <div v-else>
+      <h1>Your Cart</h1>
+      <div v-if="restaurantIds.length > 0" class="cart-selector">
+        <label for="restaurant-select">Select a Restaurant Cart:</label>
+        <select id="restaurant-select" v-model="selectedRestaurantId" @change="loadSelectedRestaurantCart">
+          <option v-for="id in restaurantIds" :key="id" :value="id">
+            {{ getRestaurantName(id) }}
+          </option>
+        </select>
+      </div>
+    </div>
 
     <div v-if="cartItems.length === 0" class="empty-cart">
       <p>Your cart is empty.</p>
-      <router-link to="/menu" class="continue-shopping"
-        >Continue Shopping</router-link
-      >
+      <router-link :to="continueShoppingLink" class="continue-shopping">
+        Continue Shopping
+      </router-link>
     </div>
 
     <div v-else class="cart-content">
@@ -16,6 +30,7 @@
           <img :src="item.image" :alt="item.name" class="item-image" />
           <div class="item-details">
             <h3>{{ item.name }}</h3>
+            <p class="restaurant-name" v-if="item.restaurantName && !restaurant">{{ item.restaurantName }}</p>
             <p class="price">${{ item.price.toFixed(2) }}</p>
           </div>
           <div class="item-quantity">
@@ -66,7 +81,7 @@
           Proceed to Checkout
         </button>
 
-        <router-link to="/menu" class="continue-shopping">
+        <router-link :to="continueShoppingLink" class="continue-shopping">
           Continue Shopping
         </router-link>
 
@@ -78,14 +93,19 @@
 
 <script>
 import cartStore from "@/store/cart";
+import restaurantService from "@/services/restaurantService";
 
 export default {
   name: "CartView",
   data() {
     return {
+      restaurant: null,
+      restaurantIds: [],
+      restaurantData: {},
+      selectedRestaurantId: null,
       cartItems: [],
       deliveryFee: 0.0,
-      taxRate: 0.0, // 0% tax
+      taxRate: 0.0, // 0% tax,
     };
   },
   computed: {
@@ -104,46 +124,126 @@ export default {
     total() {
       return this.subtotal + this.tax + this.deliveryFee;
     },
+    continueShoppingLink() {
+      return this.selectedRestaurantId 
+        ? `/restaurant/${this.selectedRestaurantId}/menu` 
+        : '/';
+    }
   },
   methods: {
-    loadCart() {
-      this.cartItems = cartStore.getCartItems();
+    async loadRestaurantData() {
+      // Get all restaurant IDs from cart
+      this.restaurantIds = cartStore.getCartRestaurants().map(id => parseInt(id, 10));
+      
+      // Load restaurant data for each ID
+      for (const id of this.restaurantIds) {
+        const restaurant = await restaurantService.getRestaurantById(id);
+        if (restaurant) {
+          this.restaurantData[id] = restaurant;
+        }
+      }
     },
+    
+    getRestaurantName(id) {
+      return this.restaurantData[id]?.name || `Restaurant ${id}`;
+    },
+    
+    async loadCart() {
+      // Check if we have a specific restaurant ID from route
+      const routeRestaurantId = this.$route.params.restaurantId;
+      
+      if (routeRestaurantId) {
+        // Load specific restaurant cart
+        this.selectedRestaurantId = parseInt(routeRestaurantId, 10);
+        this.cartItems = cartStore.getCartItems(this.selectedRestaurantId);
+        
+        // Get restaurant details
+        this.restaurant = await restaurantService.getRestaurantById(this.selectedRestaurantId);
+      } else if (this.selectedRestaurantId) {
+        // If a restaurant is already selected
+        this.cartItems = cartStore.getCartItems(this.selectedRestaurantId);
+      } else if (this.restaurantIds.length > 0) {
+        // Default to first restaurant if none selected
+        this.selectedRestaurantId = this.restaurantIds[0];
+        this.cartItems = cartStore.getCartItems(this.selectedRestaurantId);
+      } else {
+        // Empty cart
+        this.cartItems = [];
+      }
+    },
+    
+    loadSelectedRestaurantCart() {
+      if (this.selectedRestaurantId) {
+        this.$router.push(`/cart/${this.selectedRestaurantId}`);
+      }
+    },
+    
     updateQuantity(item) {
       if (item.quantity < 1) {
         item.quantity = 1;
       }
-      cartStore.updateCartItemQuantity(item.id, item.quantity);
+      cartStore.updateCartItemQuantity(this.selectedRestaurantId, item.id, item.quantity);
       this.loadCart();
     },
+    
     incrementQuantity(item) {
-      cartStore.updateCartItemQuantity(item.id, item.quantity + 1);
+      cartStore.updateCartItemQuantity(this.selectedRestaurantId, item.id, item.quantity + 1);
       this.loadCart();
     },
+    
     decrementQuantity(item) {
       if (item.quantity > 1) {
-        cartStore.updateCartItemQuantity(item.id, item.quantity - 1);
+        cartStore.updateCartItemQuantity(this.selectedRestaurantId, item.id, item.quantity - 1);
         this.loadCart();
       }
     },
+    
     removeItem(itemId) {
-      cartStore.removeFromCart(itemId);
+      cartStore.removeFromCart(this.selectedRestaurantId, itemId);
       this.loadCart();
     },
+    
     clearCart() {
       if (confirm("Are you sure you want to clear your cart?")) {
-        cartStore.clearCart();
+        cartStore.clearCart(this.selectedRestaurantId);
         this.loadCart();
+        
+        // If this was the last restaurant, go back to main cart
+        if (this.restaurant && cartStore.getCartRestaurants().length === 0) {
+          this.$router.push('/cart');
+        }
       }
     },
+    
     checkout() {
       // In a real app, this would redirect to a checkout page or process
-      //cartStore.clearCart();
+      // const restaurantName = this.restaurant?.name || this.getRestaurantName(this.selectedRestaurantId);
+
       this.$router.push("/payment");
+      // alert(`Order placed successfully for ${restaurantName}!\nTotal: $${this.total.toFixed(2)}`);
+      
+      // // Clear just this restaurant's cart
+      // cartStore.clearCart(this.selectedRestaurantId);
+      
+      // // Redirect to the appropriate page
+      // if (this.restaurant) {
+      //   this.$router.push(`/restaurant/${this.selectedRestaurantId}/menu`);
+      // } else {
+      //   this.$router.push('/menu');
+      // }
     },
   },
-  created() {
-    this.loadCart();
+  watch: {
+    '$route.params.restaurantId': function(newId) {
+      if (newId) {
+        this.selectedRestaurantId = parseInt(newId, 10);
+        this.loadCart();
+      }
+    }
+  },
+  async created() {
+    await this.loadRestaurantData();
+    await this.loadCart();
   },
 };
 </script>
@@ -153,6 +253,31 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+}
+
+.restaurant-info {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.restaurant-description {
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.cart-selector {
+  margin-bottom: 20px;
+}
+
+.cart-selector select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  margin-left: 10px;
+  min-width: 200px;
 }
 
 h1 {
@@ -210,6 +335,12 @@ h1 {
   margin-top: 0;
   margin-bottom: 5px;
   font-size: 16px;
+}
+
+.restaurant-name {
+  color: #888;
+  font-size: 0.85em;
+  margin-bottom: 4px;
 }
 
 .price {
