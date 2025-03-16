@@ -12,6 +12,14 @@
         <div class="restaurant-details">
           <h3>{{ restaurant.name }}</h3>
           <p class="description">{{ restaurant.description }}</p>
+            <StarRating 
+            :rating="calculateStar(restaurant.rating)" 
+            :read-only="true"
+            :fixed-points="1"
+            :increment="0.01"
+            :star-size="25">
+          </StarRating>
+        <p class="text-rating-total">({{ restaurant.rateCount }})</p>
           <router-link :to="`/restaurant/${restaurant.id}/menu`" class="view-menu-btn">
             View Menu
           </router-link>
@@ -22,10 +30,15 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
 import restaurantService from '@/services/restaurantService';
+import StarRating from 'vue-star-rating'
 
-export default {
+export default defineComponent({
   name: 'RestaurantList',
+  components: {
+    StarRating,
+  },
   data() {
     return {
       restaurants: [],
@@ -42,12 +55,18 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    calculateStar(rating){
+      if (!rating) {
+        return 0;
+      }
+      return rating;
     }
   },
   created() {
     this.fetchRestaurants();
   }
-};
+});
 </script>
 
 <style scoped>
@@ -128,5 +147,15 @@ h2 {
 
 .view-menu-btn:hover {
   background-color: #3aa876;
+}
+
+.vue-star-rating {
+  justify-content: center;
+}
+
+.text-rating-total {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 12px;
 }
 </style>
