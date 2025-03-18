@@ -186,14 +186,18 @@ label {
 }
 
 button {
-  display: block; /* Makes the button a block-level element */
-  width: 100%; /* Makes the button take full width */
-  max-width: 200px;
-  font-size: 15px;
-  margin-top: 20px;
-  background-color: #90ee90;
+  background-color: #42b983; 
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
+button:hover {
+  background-color: #3aa876;
+}
 h2 {
   color: #000;
 }

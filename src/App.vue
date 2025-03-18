@@ -1,7 +1,7 @@
 <template>
   <nav>
     <router-link to="/">Restaurant</router-link> |
-    <router-link to="/about">About</router-link> |
+
 
     <span v-if="!isLoggedIn">
       <router-link to="/register">Register</router-link> |
@@ -13,7 +13,7 @@
       <router-link to="/updateProfile">Update Profile</router-link> |
       <template v-if="userRole === 'Customer'">
         <router-link to="/orders">Orders</router-link> |
-        <router-link to="/cart">Cart</router-link> |
+    
 
       </template>
       <template v-else-if="userRole === 'Admin'">

@@ -129,7 +129,6 @@ export default {
   align-items: center;
   justify-content: flex-start;
   min-height: 100vh;
-  background-color: #ffa500; /* Orange background */
   padding: 40px 0;
 }
 
@@ -139,7 +138,7 @@ export default {
 }
 
 .profile-card {
-  background-color: #c8e6c9; /* Light green background */
+  background-color: #f9f9f9;
   padding: 20px;
   border-radius: 8px;
   width: 350px;
@@ -147,9 +146,10 @@ export default {
   margin-bottom: 20px;
 }
 
+/* Updated styling for alignment */
 .profile-field {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   margin-bottom: 15px;
 }
 
@@ -157,16 +157,16 @@ export default {
   font-weight: bold;
   color: #2c3e50;
   margin-right: 10px;
+  width: 120px; /* fixed width for labels to align them uniformly */
 }
 
 .profile-field span {
   color: #2c3e50;
-  max-width: 200px;
-  word-wrap: break-word;
+  flex: 1; /* takes up the remaining space */
 }
 
 .update-btn {
-  background-color: #2e7d32; /* Darker green */
+  background-color: #42b983; 
   color: #fff;
   font-weight: bold;
   padding: 10px 16px;
@@ -176,6 +176,7 @@ export default {
 }
 
 .update-btn:hover {
-  background-color: #1b5e20; /* Even darker on hover */
+  background-color: #3aa876;
 }
+
 </style>
