@@ -39,7 +39,7 @@ const routes = [
   },
 
   {
-    path: '/updateProfile/:id',
+    path: '/updateProfile',
     name: 'updateProfile',
     component: () => import(/* webpackChunkName: "register" */ '../views/UpdateUser.vue')
   },

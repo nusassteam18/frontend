@@ -16,7 +16,7 @@ app.use(express.json()) // to parse JSON bodies
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '', 
+  password: 'Password_123',
   database: 'nus_team18_db' 
 })
 
@@ -186,6 +186,80 @@ app.get('/api/admins/:id', (req, res) => {
       return res.json({})
     }
     res.json(results[0])
+  })
+})
+
+/* =======================
+   UPDATE USER AND CUSTOMERS PROFILE ENDPOINTS
+   ======================= */
+// 1) Update user info (excluding password)
+app.put('/api/users/:id', (req, res) => {
+  const id = req.params.id;
+  const firstName = req.body.firstName;
+  const lastName = req.body.lastName;
+  const email = req.body.email;
+  const role = req.body.role;
+  const number = req.body.contactNo;
+
+  const sql = 'UPDATE users SET firstName = ?, lastName = ?, email = ?  WHERE id = ?'
+
+  db.query(sql, [firstName,lastName,email,id], (e,result) => {
+    if (e) {
+      console.error('Error:', e)
+      return res.status(500).json({ message:'Server error.'})
+    }
+    if (result.affectedRows > 0) {
+      return res.status(200).json({message:'Success'});
+    } else {
+      return res.status(404).send('Not found');
+    }
+  })
+});
+
+// 2) Update customer info by id (excluding password)
+app.put('/api/customers/:id', (req, res) => {
+  const id = req.params.id
+  const number = req.body.contactNo
+  const cardNo = req.body.creditCardNo
+  const cardName = req.body.creditCardName
+  const expiryDate = req.body.creditCardExpiryDate
+  const securityCode = req.body.creditCardSecurityCode
+  const address = req.body.homeAddress
+
+  const sql = 'UPDATE customers SET contactNo = ?, creditCardNo = ?, creditCardName = ?, creditCardExpiryDate = ?, creditCardSecurityCode = ?,  homeAddress = ? WHERE userId = ?'
+  db.query(sql, [number,cardNo,cardName,expiryDate,securityCode,address,id], (e, result) => {
+    if (e) {
+      console.error('Error:', e)
+      return res.status(500).json({ message:'Server error.'})
+    }
+    if (result.affectedRows > 0) {
+      return res.status(200).json({message:'Success'});
+    } else {
+      return res.status(404).send('Not found');
+    }
+  })
+})
+
+// 3) Insert customer info by id (excluding password)
+app.post('/api/customers/:id', (req, res) => {
+  const id = req.params.id
+  const number = req.body.contactNo
+  const cardNo = req.body.creditCardNo
+  const cardName = req.body.creditCardName
+  const expiryDate = req.body.creditCardExpiryDate
+  const securityCode = req.body.creditCardSecurityCode
+  const address = req.body.homeAddress
+  const sql = 'INSERT INTO customers (userId,contactNo,creditCardNo,creditCardName,creditCardExpiryDate,creditCardSecurityCode,homeAddress) VALUES(?,?,?,?,?,?,?)'
+  db.query(sql, [id,number,cardNo,cardName,expiryDate,securityCode,address], (e, result) => {
+    if (e) {
+      console.error('Error:', e)
+      return res.status(500).json({ message:'Server error.'})
+    }
+    if (result.affectedRows > 0) {
+      return res.status(200).json({message:'Success'});
+    } else {
+      return res.json({message:"Failed creating"})
+    }
   })
 })
 
