@@ -16,8 +16,8 @@ app.use(express.json()) // to parse JSON bodies
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Password_123',
-  database: 'nus_team18_db' 
+  password: '',
+  database: 'nus_team18_db'
 })
 
 // Connect to the database
