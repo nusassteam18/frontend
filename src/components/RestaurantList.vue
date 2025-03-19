@@ -29,43 +29,44 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from 'vue';
+<script setup>
+import { defineComponent, onMounted, ref } from 'vue';
 import restaurantService from '@/services/restaurantService';
 import StarRating from 'vue-star-rating'
 
-export default defineComponent({
-  name: 'RestaurantList',
+defineComponent({
   components: {
-    StarRating,
-  },
-  data() {
-    return {
-      restaurants: [],
-      loading: true
-    };
-  },
-  methods: {
-    async fetchRestaurants() {
-      this.loading = true;
-      try {
-        this.restaurants = await restaurantService.getAllRestaurants();
-      } catch (error) {
-        console.error('Error fetching restaurants:', error);
-      } finally {
-        this.loading = false;
-      }
-    },
-    calculateStar(rating){
+    StarRating
+  }
+});
+
+const props = defineProps({
+  name: 'RestaurantList',
+});
+
+const restaurants = ref([]);
+const loading = ref(true);
+
+const fetchRestaurants = async () => {
+  loading.value = true;
+  try {
+    restaurants.value = await restaurantService.getAllRestaurants();
+  } catch (error) {
+    console.error('Error fetching restaurants:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const calculateStar = (rating) => {
       if (!rating) {
         return 0;
       }
       return rating;
     }
-  },
-  created() {
-    this.fetchRestaurants();
-  }
+
+onMounted(async () => {
+  await fetchRestaurants();
 });
 </script>
 
