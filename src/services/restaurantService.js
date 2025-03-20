@@ -47,4 +47,16 @@ export default {
       resolve(restaurant || null);
     });
   },
+
+  // Get restaurant
+  async getRestaurant() {
+    try {
+      const response = await fetch("https://callmeliow.github.io/test/restaurant.json", { cache: "no-store" });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Erro fetching restaurant");
+      
+    }
+  },
 };
