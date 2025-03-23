@@ -12,6 +12,14 @@
         <div class="restaurant-details">
           <h3>{{ restaurant.name }}</h3>
           <p class="description">{{ restaurant.description }}</p>
+            <StarRating 
+            :rating="calculateStar(restaurant.rating)" 
+            :read-only="true"
+            :fixed-points="1"
+            :increment="0.01"
+            :star-size="25">
+          </StarRating>
+        <p class="text-rating-total">({{ restaurant.rateCount }})</p>
           <router-link :to="`/restaurant/${restaurant.id}/menu`" class="view-menu-btn">
             View Menu
           </router-link>
@@ -21,33 +29,45 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { defineComponent, onMounted, ref } from 'vue';
 import restaurantService from '@/services/restaurantService';
+import StarRating from 'vue-star-rating'
 
-export default {
+defineComponent({
+  components: {
+    StarRating
+  }
+});
+
+const props = defineProps({
   name: 'RestaurantList',
-  data() {
-    return {
-      restaurants: [],
-      loading: true
-    };
-  },
-  methods: {
-    async fetchRestaurants() {
-      this.loading = true;
-      try {
-        this.restaurants = await restaurantService.getAllRestaurants();
-      } catch (error) {
-        console.error('Error fetching restaurants:', error);
-      } finally {
-        this.loading = false;
-      }
-    }
-  },
-  created() {
-    this.fetchRestaurants();
+});
+
+const restaurants = ref([]);
+const loading = ref(true);
+
+const fetchRestaurants = async () => {
+  loading.value = true;
+  try {
+    restaurants.value = await restaurantService.getAllRestaurants();
+  } catch (error) {
+    console.error('Error fetching restaurants:', error);
+  } finally {
+    loading.value = false;
   }
 };
+
+const calculateStar = (rating) => {
+      if (!rating) {
+        return 0;
+      }
+      return rating;
+    }
+
+onMounted(async () => {
+  await fetchRestaurants();
+});
 </script>
 
 <style scoped>
@@ -128,5 +148,15 @@ h2 {
 
 .view-menu-btn:hover {
   background-color: #3aa876;
+}
+
+.vue-star-rating {
+  justify-content: center;
+}
+
+.text-rating-total {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 12px;
 }
 </style>
