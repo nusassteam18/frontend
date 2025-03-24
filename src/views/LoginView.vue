@@ -63,47 +63,90 @@ export default {
   methods: {
     async loginUser() {
   try {
-    const response = await fetch('http://localhost:3000/api/login', {
+    // const response = await fetch('http://localhost:3000/api/login', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     email: this.email,
+    //     password: this.password
+    //   })
+    // })
+
+    // if (!response.ok) {
+    //   const errorData = await response.json()
+    //   alert(`Login failed: ${errorData.message || 'Invalid credentials'}`)
+    //   return
+    // }
+
+    // const data = await response.json()
+    // console.log('Login response data:', data)
+
+    // // Check for userId: use data.user.userId if present, otherwise use data.user.id
+    // const userId = data.user.userId || data.user.id
+    // console.log('Extracted userId:', userId)
+
+    // if (data.token && userId) {
+    //   setAuth(data.token, data.user.role, userId)
+    //   console.log('After setAuth: authToken =', localStorage.getItem('authToken'))
+    //   console.log('After setAuth: userRole =', localStorage.getItem('userRole'))
+    //   console.log('After setAuth: userId =', localStorage.getItem('userId'))
+    // } else {
+    //   console.error('Token or userId is missing in response.')
+    //   alert('Login failed: Token or user ID is missing.')
+    //   return
+    // }
+
+    // alert('Login successful!')
+    // this.$router.push('/')
+
+    // let USER_URL = 'http://localhost:8080/users';
+    const response = await fetch(this.API_GATEWAY_URL.concat('/users/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: this.email,
         password: this.password
       })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      alert(`Login failed: ${errorData.message || 'Invalid credentials'}`)
-      return
-    }
-
-    const data = await response.json()
-    console.log('Login response data:', data)
-
-    // Check for userId: use data.user.userId if present, otherwise use data.user.id
-    const userId = data.user.userId || data.user.id
-    console.log('Extracted userId:', userId)
-
-    if (data.token && userId) {
-      setAuth(data.token, data.user.role, userId)
-      console.log('After setAuth: authToken =', localStorage.getItem('authToken'))
-      console.log('After setAuth: userRole =', localStorage.getItem('userRole'))
-      console.log('After setAuth: userId =', localStorage.getItem('userId'))
+    }).then(res => {
+    if (res.ok) {
+      return res
+    } else if(res.status === 404) {
+      return Promise.reject(404)
     } else {
-      console.error('Token or userId is missing in response.')
-      alert('Login failed: Token or user ID is missing.')
-      return
+      return Promise.reject(res)
     }
+  })
 
-    alert('Login successful!')
-    this.$router.push('/')
-  } catch (error) {
-    console.error('Login error:', error)
-    alert('An error occurred during login.')
+  const data = await response.json()
+  console.log('Login response data:', data)
+
+  // Check for userId: use data.user.userId if present, otherwise use data.user.id
+  const userId = data.userId || data.id
+  console.log('Extracted userId:', userId)
+
+  if (userId) {
+    // setAuth(data.token, 'Customer', userId)
+    // console.log('After setAuth: authToken =', localStorage.getItem('authToken'))
+    setAuth('Customer', userId)
+    console.log('After setAuth: userRole =', localStorage.getItem('userRole'))
+    console.log('After setAuth: userId =', localStorage.getItem('userId'))
+  } else {
+    console.error('Token or userId is missing in response.')
+    alert('Login failed: Token or user ID is missing.')
+    return
   }
-}
-,
+
+  alert('Login successful!')
+  this.$router.push('/')
+  } catch (error) {
+    if (error === 404) {
+      alert(`Login failed: Invalid credentials`)
+    } else {
+      console.error('Login error:', error)
+      alert('An error occurred during login.')
+    }
+  }
+},
     goToForgotPassword() {
       this.$router.push('/forgot-password')
     }
