@@ -35,7 +35,7 @@ export default {
   },
   computed: {
     isLoggedIn() {
-      return !!this.authState.token
+      return !!this.authState.userId
     },
     userRole() {
       return this.authState.role
