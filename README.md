@@ -12,7 +12,7 @@ npm run serve
 ### For our project, please build using this command below ###
 ### Compiles and hot-reloads for development at port 8079
 ```
-npm start -- --port 8079
+npm run serve -- --port 8079
 
 ### Compiles and minifies for production
 ```
