@@ -36,9 +36,14 @@ const routes = [
   {
     path: '/updateProfile',
     name: 'updateProfile',
-    component: () => import(/* webpackChunkName: "register" */ '../views/UpdateUser.vue')
+    component: () => import(/* webpackChunkName: "update" */ '../views/UpdateUser.vue')
   },
 
+  {
+      path: '/forgot-password',
+      name: 'forgotPassword',
+      component: () => import(/* webpackChunkName: "forgot" */ '../views/ForgetPassword.vue')
+    },
   {
     path: '/admin',
     name: 'admin',
