@@ -135,7 +135,6 @@ export default {
         ...item,
         restaurantName: this.restaurant ? this.restaurant.name : "Unknown Restaurant"
       };
-      console.log(itemWithRestaurant);
       
       // User is logged in, proceed with adding to cart
       cartStore.addToCart(itemWithRestaurant);
