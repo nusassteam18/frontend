@@ -10,3 +10,5 @@ app.config.globalProperties.API_GATEWAY_URL = 'http://localhost:8080'
 
 // 3. Use router and mount app
 app.use(router).mount('#app')
+
+export const API_GATEWAY_URL = 'http://localhost:8080';

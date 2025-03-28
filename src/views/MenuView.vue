@@ -11,7 +11,7 @@
       <div v-if="!loading" class="restaurant-selector">
         <label for="restaurant-select">Select a Restaurant:</label>
         <select id="restaurant-select" v-model="selectedRestaurantId" @change="loadRestaurantMenu">
-          <option v-for="rest in restaurants" :key="rest.id" :value="rest.id">{{ rest.name }}</option>
+          <option v-for="rest in restaurants" :key="rest.restaurantId" :value="rest.restaurantId">{{ rest.name }}</option>
         </select>
       </div>
     </div>
@@ -21,8 +21,8 @@
 
     <!-- Menu Items Grid -->
     <div v-else-if="menuItems.length > 0" class="menu-items">
-      <div v-for="item in menuItems" :key="item.id" class="menu-item">
-        <img :src="item.image" :alt="item.name" class="item-image" />
+      <div v-for="item in menuItems" :key="item.productId" class="menu-item">
+        <img :src="item.imageId" :alt="item.name" class="item-image" />
         <div class="item-details">
           <h3>{{ item.name }}</h3>
           <p class="description">{{ item.description }}</p>
@@ -86,16 +86,6 @@ export default {
     }
   },
   methods: {
-    async fetchRestaurants() {
-      try {
-        this.restaurants = await restaurantService.getAllRestaurants();
-        if (this.restaurants.length > 0 && !this.selectedRestaurantId) {
-          this.selectedRestaurantId = this.restaurants[0].id;
-        }
-      } catch (error) {
-        console.error("Error fetching restaurants:", error);
-      }
-    },
     async loadRestaurantMenu() {
       if (!this.selectedRestaurantId) return;
       
@@ -124,7 +114,7 @@ export default {
           await this.loadRestaurantMenu();
         } else {
           // Fallback to all menu items
-          this.menuItems = await menuService.getAllMenuItems();
+          this.menuItems = []
         }
       } catch (error) {
         console.error("Error fetching menu items:", error);
@@ -134,7 +124,7 @@ export default {
     },
     addToCart(item) {
       // Check if user is logged in
-      if (!authState.token) {
+      if (!authState.userId) {
         alert("Please log in to add items to your cart.");
         this.$router.push("/login");
         return;
@@ -145,6 +135,7 @@ export default {
         ...item,
         restaurantName: this.restaurant ? this.restaurant.name : "Unknown Restaurant"
       };
+      console.log(itemWithRestaurant);
       
       // User is logged in, proceed with adding to cart
       cartStore.addToCart(itemWithRestaurant);
@@ -174,7 +165,6 @@ export default {
     },
   },
   async created() {
-    await this.fetchRestaurants();
     await this.fetchMenuItems();
     this.refreshCart();
   },

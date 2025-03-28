@@ -27,7 +27,7 @@
       <!-- Cart Items -->
       <div class="cart-items">
         <div v-for="item in cartItems" :key="item.id" class="cart-item">
-          <img :src="item.image" :alt="item.name" class="item-image" />
+          <img :src="item.imageId" :alt="item.name" class="item-image" />
           <div class="item-details">
             <h3>{{ item.name }}</h3>
             <p class="restaurant-name" v-if="item.restaurantName && !restaurant">{{ item.restaurantName }}</p>

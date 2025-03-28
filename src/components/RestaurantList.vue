@@ -5,8 +5,8 @@
     <div v-if="loading" class="loading">Loading restaurants...</div>
     
     <div v-else class="restaurants-grid">
-      <div v-for="restaurant in restaurants" :key="restaurant.id" class="restaurant-card">
-        <img v-if="restaurant.image" :src="restaurant.image" :alt="restaurant.name" class="restaurant-image">
+      <div v-for="restaurant in restaurants" :key="restaurant.restaurantId" class="restaurant-card">
+        <img v-if="restaurant.imageId" :src="restaurant.imageId" :alt="restaurant.name" class="restaurant-image">
         <div v-else class="restaurant-image placeholder-image">{{ restaurant.name.charAt(0) }}</div>
         
         <div class="restaurant-details">
@@ -20,7 +20,7 @@
             :star-size="25">
           </StarRating>
         <p class="text-rating-total">({{ restaurant.rateCount }})</p>
-          <router-link :to="`/restaurant/${restaurant.id}/menu`" class="view-menu-btn">
+          <router-link :to="`/restaurant/${restaurant.restaurantId}/menu`" class="view-menu-btn">
             View Menu
           </router-link>
         </div>
