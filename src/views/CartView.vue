@@ -26,8 +26,8 @@
     <div v-else class="cart-content">
       <!-- Cart Items -->
       <div class="cart-items">
-        <div v-for="item in cartItems" :key="item.id" class="cart-item">
-          <img :src="item.image" :alt="item.name" class="item-image" />
+        <div v-for="item in cartItems" :key="item.productId" class="cart-item">
+          <img :src="item.imageId" :alt="item.name" class="item-image" />
           <div class="item-details">
             <h3>{{ item.name }}</h3>
             <p class="restaurant-name" v-if="item.restaurantName && !restaurant">{{ item.restaurantName }}</p>
@@ -51,7 +51,7 @@
           <div class="item-total">
             ${{ (item.price * item.quantity).toFixed(2) }}
           </div>
-          <button @click="removeItem(item.id)" class="remove-btn">
+          <button @click="removeItem(item.productId)" class="remove-btn">
             &times;
           </button>
         </div>
@@ -182,24 +182,24 @@ export default {
       if (item.quantity < 1) {
         item.quantity = 1;
       }
-      cartStore.updateCartItemQuantity(this.selectedRestaurantId, item.id, item.quantity);
+      cartStore.updateCartItemQuantity(this.selectedRestaurantId, item.productId, item.quantity);
       this.loadCart();
     },
     
     incrementQuantity(item) {
-      cartStore.updateCartItemQuantity(this.selectedRestaurantId, item.id, item.quantity + 1);
+      cartStore.updateCartItemQuantity(this.selectedRestaurantId, item.productId, item.quantity + 1);
       this.loadCart();
     },
     
     decrementQuantity(item) {
       if (item.quantity > 1) {
-        cartStore.updateCartItemQuantity(this.selectedRestaurantId, item.id, item.quantity - 1);
+        cartStore.updateCartItemQuantity(this.selectedRestaurantId, item.productId, item.quantity - 1);
         this.loadCart();
       }
     },
     
-    removeItem(itemId) {
-      cartStore.removeFromCart(this.selectedRestaurantId, itemId);
+    removeItem(productId) {
+      cartStore.removeFromCart(this.selectedRestaurantId, productId);
       this.loadCart();
     },
     
@@ -218,8 +218,13 @@ export default {
     checkout() {
       // In a real app, this would redirect to a checkout page or process
       // const restaurantName = this.restaurant?.name || this.getRestaurantName(this.selectedRestaurantId);
-
-      this.$router.push("/payment");
+      this.$router.push({
+        name: "payment", //use name for router push
+        params: { 
+          restaurantId: this.selectedRestaurantId 
+        }
+      });
+      // this.$router.push("/payment");
       // alert(`Order placed successfully for ${restaurantName}!\nTotal: $${this.total.toFixed(2)}`);
       
       // // Clear just this restaurant's cart
@@ -227,7 +232,7 @@ export default {
       
       // // Redirect to the appropriate page
       // if (this.restaurant) {
-      //   this.$router.push(`/restaurant/${this.selectedRestaurantId}/menu`);
+      //   this.$router.push(`/restaurant/${this.selectedRestaurantId}/payment`);
       // } else {
       //   this.$router.push('/menu');
       // }

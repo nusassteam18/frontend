@@ -1,3 +1,4 @@
+import { constants } from '../../constants.js'
 // Dummy menu data service
 
 // Sample menu items data
@@ -72,19 +73,55 @@ const menuItems = [
 
 export default {
   // Get all menu items
-  getAllMenuItems() {
-    return new Promise((resolve) => {
-      resolve(menuItems);
-    });
+  async getAllMenuItems() {
+    // return new Promise((resolve) => {
+    //   resolve(menuItems);
+    // });
+        try {
+          const response = await fetch(constants.API_GATEWAY_URL.concat('/restaurants/products'), { 
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          }).then(res => {
+            if (res.ok) {
+              return res
+            } else if(res.status === 404) {
+              return Promise.reject(404)
+            } else {
+              return Promise.reject(res)
+            }
+          });
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error(error.message);
+        }
   },
 
   // Get menu items by restaurant ID
-  getMenuItemsByRestaurantId(restaurantId) {
-    return new Promise((resolve) => {
-      const filteredItems = menuItems.filter(
-        (item) => item.restaurantId === restaurantId
-      );
-      resolve(filteredItems);
-    });
+  async getMenuItemsByRestaurantId(restaurantId) {
+    // return new Promise((resolve) => {
+    //   const filteredItems = menuItems.filter(
+    //     (item) => item.restaurantId === restaurantId
+    //   );
+    //   resolve(filteredItems);
+    // });
+    try {
+      const response = await fetch(constants.API_GATEWAY_URL.concat('/restaurants/products/', restaurantId), { 
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      }).then(res => {
+        if (res.ok) {
+          return res
+        } else if(res.status === 404) {
+          return Promise.reject(404)
+        } else {
+          return Promise.reject(res)
+        }
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error.message);
+    }
   },
 };

@@ -14,6 +14,8 @@
 
 <script>
 
+import { constants } from '../../constants.js'
+
 export default {
   data() {
     return {
@@ -25,7 +27,7 @@ export default {
     async chnPass() {
       try {
         this.userExist = '';
-        const res = await fetch(this.API_GATEWAY_URL.concat('/users/forgotPass'), {
+        const res = await fetch(constants.API_GATEWAY_URL.concat('/users/forgotPass'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

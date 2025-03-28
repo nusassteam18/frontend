@@ -1,3 +1,4 @@
+import { constants } from '../../constants.js'
 // Dummy restaurant data service
 
 // Sample restaurant data
@@ -33,19 +34,52 @@ const restaurants = [
 
 export default {
   // Get all restaurants
-  getAllRestaurants() {
-    return new Promise((resolve) => {
-      resolve(restaurants);
-    });
+  async getAllRestaurants() {
+    try {
+      const response = await fetch(constants.API_GATEWAY_URL.concat('/restaurants'), { 
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      }).then(res => {
+        if (res.ok) {
+          return res
+        } else if(res.status === 404) {
+          return Promise.reject(404)
+        } else {
+          return Promise.reject(res)
+        }
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error.message);
+    }
   },
 
   // Get restaurant by ID
-  getRestaurantById(id) {
-    return new Promise((resolve) => {
-      // Simulate API call delay
-      const restaurant = restaurants.find((r) => r.id === id);
-      resolve(restaurant || null);
-    });
+  async getRestaurantById(id) {
+    // return new Promise((resolve) => {
+    //   // Simulate API call delay
+    //   const restaurant = restaurants.find((r) => r.id === id);
+    //   resolve(restaurant || null);
+    // });
+    try {
+      const response = await fetch(constants.API_GATEWAY_URL.concat('/restaurants/', id), { 
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      }).then(res => {
+        if (res.ok) {
+          return res
+        } else if(res.status === 404) {
+          return Promise.reject(404)
+        } else {
+          return Promise.reject(res)
+        }
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error.message);
+    }
   },
 
   // Get restaurant

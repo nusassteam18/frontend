@@ -79,6 +79,7 @@
   </div>
 </template>
 <script>
+import cartStore from "@/store/cart";
 export default {
   data() {
     return {
@@ -123,13 +124,14 @@ export default {
   methods: {
     // Handle Pay button click
     payOrder() {
+      cartStore.clearCart();
       alert('Paid');
-      this.$router.push("/restaurant");
+      this.$router.push("/");
     },
     // Handle Cancel button click
     cancelOrder() {
       alert('Cancelled');
-    }
+      }
   }
 };
 </script>

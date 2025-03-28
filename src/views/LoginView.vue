@@ -49,6 +49,8 @@
 </template>
 
 <script>
+import { constants } from '../../constants.js'
+
 // Import the setAuth helper from your auth module.
 import { setAuth } from '@/services/auth'
 
@@ -63,44 +65,7 @@ export default {
   methods: {
     async loginUser() {
   try {
-    // const response = await fetch('http://localhost:3000/api/login', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     email: this.email,
-    //     password: this.password
-    //   })
-    // })
-
-    // if (!response.ok) {
-    //   const errorData = await response.json()
-    //   alert(`Login failed: ${errorData.message || 'Invalid credentials'}`)
-    //   return
-    // }
-
-    // const data = await response.json()
-    // console.log('Login response data:', data)
-
-    // // Check for userId: use data.user.userId if present, otherwise use data.user.id
-    // const userId = data.user.userId || data.user.id
-    // console.log('Extracted userId:', userId)
-
-    // if (data.token && userId) {
-    //   setAuth(data.token, data.user.role, userId)
-    //   console.log('After setAuth: authToken =', localStorage.getItem('authToken'))
-    //   console.log('After setAuth: userRole =', localStorage.getItem('userRole'))
-    //   console.log('After setAuth: userId =', localStorage.getItem('userId'))
-    // } else {
-    //   console.error('Token or userId is missing in response.')
-    //   alert('Login failed: Token or user ID is missing.')
-    //   return
-    // }
-
-    // alert('Login successful!')
-    // this.$router.push('/')
-
-    // let USER_URL = 'http://localhost:8080/users';
-    const response = await fetch(this.API_GATEWAY_URL.concat('/users/login'), {
+    const response = await fetch(constants.API_GATEWAY_URL.concat('/users/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
