@@ -49,9 +49,9 @@ onMounted(fetchRestaurant);
     
     <div class="row">
       <div class="col-md-12 box-grey">
-        <p class="fs-3 mb-0">{{ state.restaurant.rating }}</p>
+        <p class="fs-3 mb-0">{{ state.restaurant.averageScore }}</p>
         <star-rating  
-          :rating="calculateStar(state.restaurant.rating)" 
+          :rating="calculateStar(state.restaurant.averageScore)" 
           :read-only="true"
           :fixed-points="1"
           :increment="0.01"

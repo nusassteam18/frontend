@@ -32,7 +32,7 @@ export default {
 
     // Check if item already exists in cart
     const existingItemIndex = restaurantCart.findIndex(
-      (cartItem) => cartItem.id === item.id
+      (cartItem) => cartItem.productId === item.productId
     );
 
     if (existingItemIndex >= 0) {
@@ -52,7 +52,7 @@ export default {
   },
 
   // Update item quantity in cart for a specific restaurant
-  updateCartItemQuantity(restaurantId, itemId, quantity) {
+  updateCartItemQuantity(restaurantId, productId, quantity) {
     const allCarts = this.getAllCartItems();
     
     if (!allCarts[restaurantId]) {
@@ -60,7 +60,7 @@ export default {
     }
     
     const restaurantCart = allCarts[restaurantId];
-    const itemIndex = restaurantCart.findIndex((item) => item.id === itemId);
+    const itemIndex = restaurantCart.findIndex((item) => item.productId === productId);
 
     if (itemIndex >= 0) {
       if (quantity > 0) {
@@ -78,7 +78,7 @@ export default {
   },
 
   // Remove item from cart for a specific restaurant
-  removeFromCart(restaurantId, itemId) {
+  removeFromCart(restaurantId, productId) {
     const allCarts = this.getAllCartItems();
     
     if (!allCarts[restaurantId]) {
@@ -86,7 +86,7 @@ export default {
     }
     
     const restaurantCart = allCarts[restaurantId];
-    const updatedCart = restaurantCart.filter((item) => item.id !== itemId);
+    const updatedCart = restaurantCart.filter((item) => item.productId !== productId);
     
     allCarts[restaurantId] = updatedCart;
 
