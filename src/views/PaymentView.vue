@@ -51,16 +51,19 @@
       <div class="card">
         <!-- Restaurant Name Section -->
         <div class="restaurant-section">
-          <strong>Restaurant:</strong> {{ order.restaurantName }}
+          <strong>Restaurant:</strong> {{ restaurantName }}
         </div>
 
         <!-- Order Items Section -->
         <div class="order-items-section">
-          <div v-for="(item, index) in order.orderItems" :key="index" class="order-item">
-            <p><strong>Dish Name:</strong> {{ item.dishName }}</p>
-            <p><strong>Special Instruction:</strong> {{ item.specialInstruction }}</p>
-            <p><strong>Quantity:</strong> {{ item.quantity }}</p>
-            <p><strong>Subtotal:</strong> ${{ item.subtotal.toFixed(2) }}</p>
+          <div v-for="item in cartItems" :key="productId" class="order-item">
+            <img :src="item.imageId" :alt="item.name" class="item-image" />
+            <div class="item-details" >
+              <p><strong>Dish Name:</strong> {{ item.name }}</p>
+              <!-- <p><strong>Special Instruction:</strong> {{ item.specialInstruction }}</p> -->
+              <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+              <p><strong>Subtotal:</strong> ${{ item.price.toFixed(2) }}</p>
+            </div>
           </div>
         </div>
 
@@ -80,7 +83,16 @@
 </template>
 <script>
 import cartStore from "@/store/cart";
+import { authState } from "@/services/auth";
+import { constants } from '../../constants.js';
 export default {
+  created() {
+    const restaurantId = parseInt(this.$route.params.restaurantId, 10)
+    this.restaurantName = this.$route.params.restaurantName
+    this.cartItems = cartStore.getCartItems(restaurantId)
+    console.log("cartItems: ")
+    console.dir(this.cartItems)
+  },
   data() {
     return {
       // Sample customer data
@@ -118,21 +130,67 @@ export default {
   computed: {
     // Calculate the total order amount
     total() {
-      return this.order.orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+      return this.cartItems.reduce((sum, item) => sum + item.price, 0)
     }
   },
   methods: {
     // Handle Pay button click
-    payOrder() {
+    async payOrder() {
+      try {
+        // console.log("test: ")
+        const restaurantId = parseInt(this.$route.params.restaurantId, 10)
+        // console.log("restaurantId: " + restaurantId)
+        const orderItems = this.cartItems.map((item) => {
+          return {
+            productId: item.productId,
+            quantity: item.quantity,
+            description: null,
+            price: item.price
+          }
+        })
+        let requestBody = JSON.stringify({
+            customerId: authState.userId,
+            restaurantId: restaurantId,
+            orderItems: orderItems
+          })
+        // console.log("requestBody: " + requestBody)
+        const response = await fetch(constants.API_GATEWAY_URL.concat('/orders'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: requestBody
+        }).then(res => {
+        if (res.ok) {
+          return res
+        } else if(res.status === 404) {
+          return Promise.reject(404)
+        } else {
+          return Promise.reject(res)
+        }
+      })
+
+      const orderId = await response.json()
+      console.log('Send Order response data: ')
+      console.dir(orderId)
+
       cartStore.clearCart();
-      alert('Paid');
+      alert('Paid! Your order id is ' + orderId);
       this.$router.push("/");
+
+      } catch (error) {
+        if (error === 404) {
+          alert(`Cannot find resource.`)
+        } else {
+          console.error('Send order error:', error)
+          alert('An error occurred.')
+        }
+      }
     },
     // Handle Cancel button click
     cancelOrder() {
       alert('Cancelled');
-      }
-  }
+      this.$router.go(-1);
+    },
+  },
 };
 </script>
 <style scoped>
@@ -194,6 +252,13 @@ export default {
   margin-bottom: 20px;
 }
 
+.item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
 .order-item {
   width: 100%;
   max-width: 400px;
@@ -201,6 +266,9 @@ export default {
   text-align: left;
   border-bottom: 1px solid #eee;
   padding: 10px 0;
+
+  display: flex;
+  gap: 5%;
 }
 
 .order-item:last-child {

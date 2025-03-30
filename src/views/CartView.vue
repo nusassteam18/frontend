@@ -221,7 +221,9 @@ export default {
       this.$router.push({
         name: "payment", //use name for router push
         params: { 
-          restaurantId: this.selectedRestaurantId 
+          restaurantId: this.selectedRestaurantId,
+          restaurantName: this.getRestaurantName(this.selectedRestaurantId),
+          // customerId: this.
         }
       });
       // this.$router.push("/payment");
