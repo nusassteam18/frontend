@@ -54,7 +54,7 @@ const routes = [
   },
   
   {
-    path: '/payment/:restaurantId',
+    path: '/payment/:restaurantId/:restaurantName',
     name: 'payment',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
