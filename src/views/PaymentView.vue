@@ -90,6 +90,16 @@ export default {
     const restaurantId = parseInt(this.$route.params.restaurantId, 10)
     this.restaurantName = this.$route.params.restaurantName
     this.cartItems = cartStore.getCartItems(restaurantId)
+
+    this.customer.email = authState.email || '',
+    this.customer.firstName =  authState.firstName || '',
+    this.customer.lastName =  authState.lastName || '',
+    this.customer.contactNo =  authState.contactNo || '',
+    this.customer.creditCardNo =  authState.creditCardNo || '',
+    this.customer.creditCardName =  authState.creditCardName || '',
+    this.customer.creditCardExpiryDate = authState.creditCardExpiryDate || '',
+    this.customer.creditCardSecurityCode = authState.creditCardSecurityCode || '',
+    this.customer.homeAddress =  authState.homeAddress || ''
     console.log("cartItems: ")
     console.dir(this.cartItems)
   },
