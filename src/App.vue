@@ -11,12 +11,12 @@
     <span v-else>
       <router-link to="/profile">Profile</router-link> |
       <router-link to="/updateProfile">Update Profile</router-link> |
-      <template v-if="userRole === 'Customer'">
+      <template v-if="userRole === 'C'">
         <router-link to="/orders">Orders</router-link> |
     
 
       </template>
-      <template v-else-if="userRole === 'Admin'">
+      <template v-else-if="userRole === 'A'">
         <router-link to="/admin">Admin</router-link> |
       </template>
       <button class="logout-btn" @click="logout">Logout</button>

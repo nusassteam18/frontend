@@ -26,19 +26,75 @@ import { reactive } from 'vue'
 
 export const authState = reactive({
   role: localStorage.getItem('userRole') || null,
-  userId: localStorage.getItem('userId') || null
+  userId: localStorage.getItem('userId') || null,
+  restaurantId: localStorage.getItem('restaurantId') || null, 
+  firstName: localStorage.getItem('firstName') || null, 
+  lastName: localStorage.getItem('lastName') || null, 
+  email: localStorage.getItem('email') || null, 
+  password: localStorage.getItem('password') || null, 
+  contactNo: localStorage.getItem('contactNo') || null, 
+  creditCardNo: localStorage.getItem('creditCardNo') || null, 
+  creditCardName: localStorage.getItem('creditCardName') || null, 
+  creditCardExpiryDate: localStorage.getItem('creditCardExpiryDate') || null, 
+  creditCardSecurityCode: localStorage.getItem('creditCardSecurityCode') || null, 
+  homeAddress: localStorage.getItem('homeAddress') || null
 })
 
-export function setAuth(role, userId) {
+export function setAuth(role, userId, restaurantId, firstName, lastName, email, password, contactNo, creditCardNo, creditCardName, creditCardExpiryDate, creditCardSecurityCode, homeAddress) {
   authState.role = role
   authState.userId = userId
+  authState.restaurantId = restaurantId
+  authState.firstName = firstName
+  authState.lastName = lastName
+  authState.email = email
+  authState.password = password
+  authState.contactNo = contactNo
+  authState.creditCardNo = creditCardNo
+  authState.creditCardName = creditCardName
+  authState.creditCardExpiryDate = creditCardExpiryDate
+  authState.creditCardSecurityCode = creditCardSecurityCode
+  authState.homeAddress = homeAddress
+
   localStorage.setItem('userRole', role)
-  localStorage.setItem('userId', userId)
+  localStorage.setItem('restaurantId', restaurantId)
+  localStorage.setItem('firstName', firstName)
+  localStorage.setItem('lastName', lastName)
+  localStorage.setItem('email', email)
+  localStorage.setItem('password', password)
+  localStorage.setItem('contactNo', contactNo)
+  localStorage.setItem('creditCardNo', creditCardNo)
+  localStorage.setItem('creditCardName', creditCardName)
+  localStorage.setItem('creditCardExpiryDate', creditCardExpiryDate)
+  localStorage.setItem('creditCardSecurityCode', creditCardSecurityCode)
+  localStorage.setItem('homeAddress', homeAddress)
 }
 
 export function clearAuth() {
   authState.role = null
-  authState.userId = null
+  authState.userId  = null
+  authState.restaurantId = null
+  authState.firstName = null
+  authState.lastName = null
+  authState.email = null
+  authState.password = null
+  authState.contactNo = null
+  authState.creditCardNo = null
+  authState.creditCardName = null
+  authState.creditCardExpiryDate = null
+  authState.creditCardSecurityCode = null
+  authState.homeAddress = null
+
   localStorage.removeItem('userRole')
   localStorage.removeItem('userId')
+  localStorage.removeItem('restaurantId')
+  localStorage.removeItem('firstName')
+  localStorage.removeItem('lastName')
+  localStorage.removeItem('email')
+  localStorage.removeItem('password')
+  localStorage.removeItem('contactNo')
+  localStorage.removeItem('creditCardNo')
+  localStorage.removeItem('creditCardName')
+  localStorage.removeItem('creditCardExpiryDate')
+  localStorage.removeItem('creditCardSecurityCode')
+  localStorage.removeItem('homeAddress')
 }
