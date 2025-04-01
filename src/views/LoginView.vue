@@ -85,19 +85,32 @@ export default {
   const data = await response.json()
   console.log('Login response data:', data)
 
+  
+  const role = data.role
   // Check for userId: use data.user.userId if present, otherwise use data.user.id
   const userId = data.userId || data.id
+  const restaurantId = data.restaurantId
+  const firstName = data.firstName
+  const lastName = data.lastName
+  const email = data.email
+  const password = data.password
+  const contactNo = data.contactNo
+  const creditCardNo = data.creditCardNo
+  const creditCardName = data.creditCardName
+  const creditCardExpiryDate = data.creditCardExpiryDate
+  const creditCardSecurityCode = data.creditCardSecurityCode
+  const homeAddress = data.homeAddress
   console.log('Extracted userId:', userId)
 
   if (userId) {
     // setAuth(data.token, 'Customer', userId)
     // console.log('After setAuth: authToken =', localStorage.getItem('authToken'))
-    setAuth('Customer', userId)
-    console.log('After setAuth: userRole =', localStorage.getItem('userRole'))
-    console.log('After setAuth: userId =', localStorage.getItem('userId'))
+    setAuth(role, userId, restaurantId, firstName, lastName, email, password, contactNo, creditCardNo, creditCardName, creditCardExpiryDate, creditCardSecurityCode, homeAddress)
+    // console.log('After setAuth: userRole =', localStorage.getItem('userRole'))
+    // console.log('After setAuth: userId =', localStorage.getItem('userId'))
   } else {
-    console.error('Token or userId is missing in response.')
-    alert('Login failed: Token or user ID is missing.')
+    console.error('UserId is missing in response.')
+    alert('Login failed: Invalid user.')
     return
   }
 
