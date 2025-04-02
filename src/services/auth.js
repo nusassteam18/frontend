@@ -56,6 +56,7 @@ export function setAuth(role, userId, restaurantId, firstName, lastName, email, 
   authState.homeAddress = homeAddress
 
   localStorage.setItem('userRole', role)
+  localStorage.setItem('userId', userId)
   localStorage.setItem('restaurantId', restaurantId)
   localStorage.setItem('firstName', firstName)
   localStorage.setItem('lastName', lastName)
