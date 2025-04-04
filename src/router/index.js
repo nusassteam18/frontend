@@ -81,6 +81,11 @@ const routes = [
     name: 'restaurantEdit',
     component: RestaurantEditView
   },
+  {
+    path: '/restaurant/report',
+    name: 'restaurantReport',
+    component: () => import(/* webpackChunkName: "report" */ '../views/RestaurantReportView.vue')
+  },
 
 ]
 
