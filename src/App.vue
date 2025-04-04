@@ -18,6 +18,8 @@
       </template>
       <template v-else-if="userRole === 'A'">
         <router-link to="/admin">Admin</router-link> |
+        <router-link to="/restaurant/edit">Edit Restaurant</router-link> |
+        <router-link to="/restaurant/report">Restaurant Reports</router-link> |
       </template>
       <button class="logout-btn" @click="logout">Logout</button>
     </span>
