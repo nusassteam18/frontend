@@ -15,30 +15,30 @@
         <input type="email" v-model="user.email" required/>
       </div>
 
-      <div v-if="user.role === 'Customer'">
+      <div v-if="user.role === 'C'">
         <div class="userInfo">
           <label>Contact Number</label>
-          <input v-model="customer.contactNo"/>
+          <input v-model="user.contactNo"/>
         </div>
         <div class="userInfo">
           <label>Credit Card No</label>
-          <input v-model="customer.creditCardNo"/>
+          <input v-model="user.creditCardNo"/>
         </div>
         <div class="userInfo">
           <label>Credit Card Name</label>
-          <input v-model="customer.creditCardName"/>
+          <input v-model="user.creditCardName"/>
         </div>
         <div class="userInfo">
           <label>Credit Card Expiry Date</label>
-          <input type="date" v-model="customer.creditCardExpiryDate"/>
+          <input v-model="user.creditCardExpiryDate"/>
         </div>
         <div class="userInfo">
           <label>Credit Card Expiry Security Code</label>
-          <input v-model="customer.creditCardSecurityCode"/>
+          <input v-model="user.creditCardSecurityCode"/>
         </div>
         <div class="userInfo">
           <label>Home Address</label>
-          <input v-model="customer.homeAddress" required />
+          <input v-model="user.homeAddress" required />
         </div>
       </div>
       <button type="submit">Save</button>
@@ -47,36 +47,20 @@
 </template>
 
 <script>
+import { constants } from '../../constants.js'
 
 export default {
   data() {
     return {
-      user: {},
-      customer: {},
-      admin: {}
+      user: {}
     };
   },
   async mounted() {
      try {
         const id = localStorage.getItem('userId');
-        const res = await fetch(`http://localhost:3000/api/users/${id}`);
+        const res = await fetch(constants.API_GATEWAY_URL.concat(`/users/${id}`));
         if (!res.ok) throw new Error('Failed to obtain profile');
         this.user = await res.json();
-        if(this.user.role === 'Customer'){
-            const resp = await fetch(`http://localhost:3000/api/customers/${id}`);
-            if (!resp.ok) throw new Error('Failed to obtain profile');
-            const cus = await resp.json();
-            let date = new Date(cus.creditCardExpiryDate);
-            date.setMinutes(date.getMinutes()-date.getTimezoneOffset());
-            this.customer = { contactNo: cus.contactNo, creditCardNo: cus.creditCardNo,
-            creditCardName: cus.creditCardName, creditCardExpiryDate: date.toISOString().split('T')[0],
-            creditCardSecurityCode: cus.creditCardSecurityCode, homeAddress: cus.homeAddress}
-        }
-        if(this.user.role === 'Admin'){
-            const resp = await fetch(`http://localhost:3000/api/admins/${id}`);
-            if (!resp.ok) throw new Error('Failed to obtain profile');
-            this.admin = await resp.json();
-        }
     } catch(e) {
         console.error(e);
     }
@@ -200,6 +184,7 @@ button:hover {
 }
 h2 {
   color: #000;
+  margin-bottom: 30px;
 }
 
 </style>
