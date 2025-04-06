@@ -68,16 +68,18 @@ export default {
   methods: {
     async update(){
       try{
-        const res = await fetch(`http://localhost:3000/api/users/${this.user.id}`,{
-          method: 'PUT',
-          headers: {'Content-Type':'application/json',},
-          body: JSON.stringify(this.user),
-        });
-        if (res.ok) {
-          const user = await res.json();
-          console.log('Updated successfully:', user);
-        } else {
-          throw new Error('Failed to update');
+        if(this.user.role === "C"){
+          const res = await fetch(constants.API_GATEWAY_URL.concat(`/users/customer/${this.user.userId}`),{
+            method: 'PUT',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(this.user),
+          });
+          if (res.ok) {
+            const user = await res.json();
+            alert('Updated successfully');
+          } else {
+            throw new Error('Failed to update');
+          }
         }
         if (this.user.role === 'Customer') {
           const resp = await fetch(`http://localhost:3000/api/customers/${this.user.id}`)
