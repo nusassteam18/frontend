@@ -115,7 +115,11 @@ export default {
   }
 
   alert('Login successful!')
-  this.$router.push('/')
+
+  if (role == 'A')
+    this.$router.push('/admin')
+  else
+    this.$router.push('/')
   } catch (error) {
     if (error === 404) {
       alert(`Login failed: Invalid credentials`)
