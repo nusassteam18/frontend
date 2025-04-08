@@ -7,7 +7,8 @@
           <tr class="bg-gray-200">
             <th class="border px-1 py-0.5">Order ID</th>
             <th class="border px-1 py-0.5">Customer</th>
-            <th class="border px-1 py-0.5">Restaurant</th>
+            <th class="border px-1 py-0.5">Email</th>
+            <th class="border px-1 py-0.5">Contact Number</th>
             <th class="border px-1 py-0.5">Order Items</th>
             <th class="border px-1 py-0.5">Total Amount</th>
             <th class="border px-1 py-0.5">Status</th>
@@ -19,11 +20,12 @@
         <tbody>
           <tr v-for="order in orders" :key="order.id" class="border">
             <td class="border px-1 py-0.5">{{ order.id }}</td>
-            <td class="border px-1 py-0.5">{{ order.customer }}</td>
-            <td class="border px-1 py-0.5">{{ order.restaurant }}</td>
+            <td class="border px-1 py-0.5">{{ order.firstName }} {{ order.lastName }}</td>
+            <td class="border px-1 py-0.5">{{ order.email }}</td>
+            <td class="border px-1 py-0.5">{{ order.contactNo }}</td>
             <td class="border px-1 py-0.5">
               <ul>
-                <li v-for="item in order.items" :key="item.id" class="mb-0.5">
+                <li v-for="item in order.orderItemDTOs" :key="item.id" class="mb-0.5">
                   <strong>{{ item.dish }}</strong>
                   <br />
                   Quantity: {{ item.quantity }}
@@ -36,14 +38,14 @@
             </td>
             <td class="border px-1 py-0.5">${{ order.total.toFixed(2) }}</td>
             <td class="border px-1 py-0.5">
-              <select v-model="order.selectedStatus" class="border px-1 py-0.5 text-xs">
+              <select v-model="order.status" class="border px-1 py-0.5 text-xs">
                 <option v-for="status in statuses" :key="status" :value="status">
                   {{ status }}
                 </option>
               </select>
             </td>
             <td class="border px-1 py-0.5">
-              <button @click="updateStatus(order)" class="bg-blue-500 text-white px-1 py-0.5 rounded text-xs">
+              <button @click="updateOrderStatus(order)" class="submit-button">
                 Submit
               </button>
             </td>
@@ -56,64 +58,79 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      orders: [
-        {
-          id: 1, 
-          customer: "John Doe", 
-          restaurant: "Pizza Palace",
-          createdAt: "2025-03-06 12:30 PM",
-          updatedAt: "2025-03-06 01:00 PM",
-          total: 99.99, 
-          status: "Pending", 
-          selectedStatus: "Pending",
-          items: [
-            { id: 1, dish: "Pepperoni Pizza", quantity: 1, subtotal: 19.99, specialInstructions: "Extra cheese" },
-            { id: 2, dish: "Garlic Bread", quantity: 2, subtotal: 9.99, specialInstructions: "No butter" }
-          ]
-        },
-        {
-          id: 2, 
-          customer: "Jane Smith", 
-          restaurant: "Sushi World",
-          createdAt: "2025-03-06 01:15 PM",
-          updatedAt: "2025-03-06 01:45 PM",
-          total: 49.5, 
-          status: "Ready", 
-          selectedStatus: "Ready",
-          items: [
-            { id: 3, dish: "Salmon Roll", quantity: 1, subtotal: 15.50, specialInstructions: "Less soy sauce" },
-            { id: 4, dish: "Miso Soup", quantity: 1, subtotal: 4.00 }
-          ]
-        },
-        {
-          id: 3, 
-          customer: "Mike Johnson", 
-          restaurant: "Burger Haven",
-          createdAt: "2025-03-06 02:00 PM",
-          updatedAt: "2025-03-06 02:30 PM",
-          total: 75.0, 
-          status: "Completed", 
-          selectedStatus: "Completed",
-          items: [
-            { id: 5, dish: "Cheeseburger", quantity: 1, subtotal: 12.99, specialInstructions: "No pickles" },
-            { id: 6, dish: "Fries", quantity: 2, subtotal: 6.99 }
-          ]
-        }
-      ],
-      statuses: ["Pending", "Ready", "Completed", "Cancelled"],
-    };
-  },
-  methods: {
-    updateStatus(order) {
-      order.status = order.selectedStatus;
-      alert(`Order ${order.id} status updated to ${order.selectedStatus}`);
-    },
-  },
+<script setup>
+import { onMounted, reactive, ref, onUpdated } from 'vue'
+import orderService from '@/services/orderService';
+import { authState } from "@/services/auth";
+import { constants } from '../../constants.js'
+
+// const state = reactive({
+//   orders: [],
+//   isLoading: true,
+// });
+
+const orders = ref([]);
+const isLoading = ref(true);
+const statuses = ref(["Pending", "Ready", "Completed", "Cancelled"]);
+
+const fetchOrders = async () => {
+  isLoading.value = true;
+
+  try {
+    const rawOrders = await orderService.getOrdersByRestaurantId(authState.restaurantId);
+
+    orders.value = rawOrders.map(rawOrder => {
+          return {...rawOrder, createdAt: formatDateTime(rawOrder.createdAt),  updatedAt: formatDateTime(rawOrder.updatedAt)}
+      })
+    
+    // console.log(orders.value);
+  } catch (error) {
+    console.error("Error fetching orders!", error);
+  } finally {
+    isLoading.value = false;
+  }
 };
+
+onMounted(async () => {
+  await fetchOrders();
+});
+
+const formatDateTime = (dateTimeString) => {
+  const date = new Date(dateTimeString)
+  return new Intl.DateTimeFormat('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date)
+}
+
+const updateOrderStatus = async (order) => {
+
+  const response = await orderService.updateOrderStatus(order.id, order.status)
+  // console.log(`response -> orderId: ${response.orderId}, status: ${response.status}, updatedAt: ${response.updatedAt}`)
+  if (response !== null) {
+    if (response.returnCode === constants.SAME_ORDER_STATUS)
+      alert(`Nothing changed. Order ${order.id} status is already set to ${order.status}`)
+    else {
+      // returnCode === SUCCESS or SUCCESS_BUT_SEND_EMAIL_FAILED
+      orders.value = orders.value.map(order => {
+          if (order.id === response.orderId) {
+            return {...order, orderId: response.orderId, status: response.status, updatedAt: formatDateTime(response.updatedAt)}
+          } else {
+            return order
+          }
+      })
+      // console.dir(orders.value)
+      if (response.returnCode === constants.SUCCESS)
+        alert(`Order ${response.orderId} status updated to ${response.status} at ${formatDateTime(response.updatedAt)}. Order update email is sent successfully.`)
+      else 
+        alert(`Order ${response.orderId} status updated to ${response.status} at ${formatDateTime(response.updatedAt)} but failed to send email.`)
+    }
+  }
+}
+
 </script>
 
 <style>
@@ -139,5 +156,17 @@ export default {
       font-size: 9px;
       padding: 1px 3px;
     }
+  }
+
+  .submit-button {
+    background-color: #22c55e; /* Tailwind green-500 */
+    color: white;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border-color: transparent;
+    font-size: 10px;
+  }
+  .submit-button:hover {
+    background-color: #ef4444; /* Tailwind red-500 */
   }
 </style>
