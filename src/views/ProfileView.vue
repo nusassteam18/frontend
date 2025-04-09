@@ -100,9 +100,9 @@ export default {
         this.customer = await response.json()
         console.log('Fetched customer:', this.customer)
       }
-    } else if (this.user.role === 'Admin') {
+    } else if (this.user.role === 'A') {
       console.log('Fetching admin info...')
-      response = await fetch(constants.API_GATEWAY_URL.concat(`/admins/${userId}`))
+      response = await fetch(constants.API_GATEWAY_URL.concat(`/users/admins/${userId}`))
       console.log('Admin fetch status:', response.status)
       if (response.ok) {
         this.admin = await response.json()
