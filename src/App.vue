@@ -1,25 +1,25 @@
 <template>
   <nav>
-    <router-link to="/">Restaurant</router-link> |
-
 
     <span v-if="!isLoggedIn">
+      <router-link to="/">Restaurant</router-link> |
       <router-link to="/register">Register</router-link> |
       <router-link to="/login">Login</router-link>
     </span>
 
     <span v-else>
+      <template v-if="userRole === 'C'">
+        <router-link to="/">Restaurant</router-link> | </template>
       <router-link to="/profile">Profile</router-link> |
       <router-link to="/updateProfile">Update Profile</router-link> |
       <template v-if="userRole === 'C'">
-        <router-link to="/orders">Orders</router-link> |
+        <router-link to="/rate">Rate</router-link> |
     
 
       </template>
       <template v-else-if="userRole === 'A'">
         <router-link to="/admin">Admin</router-link> |
-        <router-link to="/restaurant/edit">Edit Restaurant</router-link> |
-        <router-link to="/restaurant/report">Restaurant Reports</router-link> |
+        <router-link to="/restaurant/report">Report</router-link> |
       </template>
       <button class="logout-btn" @click="logout">Logout</button>
     </span>
