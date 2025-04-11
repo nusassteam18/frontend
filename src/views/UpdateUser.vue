@@ -81,42 +81,18 @@ export default {
             throw new Error('Failed to update');
           }
         }
-        if (this.user.role === 'Customer') {
-          const resp = await fetch(`http://localhost:3000/api/customers/${this.user.id}`)
-          if(resp.ok){
-            const cus = await resp.json();
-
-            if(Object.keys(cus).length===0){
-              const res = await fetch(`http://localhost:3000/api/customers/${this.user.id}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json',},
-                body: JSON.stringify(this.customer),
-              });
-              if (res.ok) {
-                const user = await res.json();
-                alert('Updated successful')
-              } else {
-                throw new Error('Failed');
-              }
-            } else {
-                const res = await fetch(`http://localhost:3000/api/customers/${this.user.id}`, {
-                   method: 'PUT',
-                   headers: { 'Content-Type': 'application/json',},
-                   body: JSON.stringify(this.customer),
-                });
-                if (res.ok) {
-                  const customer = await res.json();
-                  alert('Updated successful')
-                } else {
-                  throw new Error('Failed');
-                }
-            }
+        else {
+          const res = await fetch(constants.API_GATEWAY_URL.concat(`/users/admin/${this.user.id}`),{
+            method: 'PUT',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(this.user),
+          });
+          if(res.ok){
+            const ad = await res.json();
+            alert('Updated successful')
+          } else {
+            throw new Error('Failed');
           }
-        }
-
-        if(this.user.role === 'Admin'){
-          const resp = await fetch(`http://localhost:3000/api/customers/${this.user.id}`)
-          const data = await resp.json();
         }
       } catch (e) {
          console.error('Failed update:', e);

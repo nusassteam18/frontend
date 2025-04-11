@@ -20,7 +20,7 @@
       </div>
 
       <!-- If the user is a Customer, show Customer fields -->
-      <div v-if="user.role === 'Customer'">
+      <div v-if="user.role === 'C'">
         <div class="profile-field">
           <label>Contact No:</label>
           <span>{{ customer.contactNo || '' }}</span>
@@ -64,6 +64,7 @@
 </template>
 
 <script>
+import { constants } from '../../constants.js'
 
 export default {
   name: 'ProfileView',
@@ -84,24 +85,24 @@ export default {
       return this.$router.push('/')
     }
 
-    console.log('Fetching user from:', `http://localhost:3000/api/users/${userId}`)
-    let response = await fetch(`http://localhost:3000/api/users/${userId}`)
+    //console.log('Fetching user from:', `http://localhost:3000/api/users/${userId}`)
+    let response = await fetch(constants.API_GATEWAY_URL.concat(`/users/${userId}`))
     console.log('User fetch status:', response.status)
     if (!response.ok) throw new Error('Failed to fetch user data')
     this.user = await response.json()
     console.log('Fetched user:', this.user)
 
-    if (this.user.role === 'Customer') {
+    if (this.user.role === 'C') {
       console.log('Fetching customer info...')
-      response = await fetch(`http://localhost:3000/api/customers/${userId}`)
+      response = await fetch(constants.API_GATEWAY_URL.concat(`/users/customers/${userId}`))
       console.log('Customer fetch status:', response.status)
       if (response.ok) {
         this.customer = await response.json()
         console.log('Fetched customer:', this.customer)
       }
-    } else if (this.user.role === 'Admin') {
+    } else if (this.user.role === 'A') {
       console.log('Fetching admin info...')
-      response = await fetch(`http://localhost:3000/api/admins/${userId}`)
+      response = await fetch(constants.API_GATEWAY_URL.concat(`/users/admins/${userId}`))
       console.log('Admin fetch status:', response.status)
       if (response.ok) {
         this.admin = await response.json()

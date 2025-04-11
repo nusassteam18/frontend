@@ -46,6 +46,71 @@
         />
       </div>
 
+      <div class="form-group">
+        <label for="contactNo">Contact No</label>
+        <input
+          v-model="contactNo"
+          type="contactNo"
+          id="contactNo"
+          placeholder="Enter contact no"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="creditCardExpiryDate">Credit Card Expiry Date</label>
+        <input
+          v-model="creditCardExpiryDate"
+          type="creditCardExpiryDate"
+          id="creditCardExpiryDate"
+          placeholder="Enter credit card expiry date"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="creditCardName">Credit Card Name</label>
+        <input
+          v-model="creditCardName"
+          type="creditCardName"
+          id="creditCardName"
+          placeholder="Enter credit card name"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="creditCardNo">Credit Card No</label>
+        <input
+          v-model="creditCardNo"
+          type="creditCardNo"
+          id="creditCardNo"
+          placeholder="Enter credit card no"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="creditCardSecurityCode">Credit Card Security Code</label>
+        <input
+          v-model="creditCardSecurityCode"
+          type="creditCardSecurityCode"
+          id="creditCardSecurityCode"
+          placeholder="Enter credit card security code"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="homeAddress">Home Address</label>
+        <input
+          v-model="homeAddress"
+          type="homeAddress"
+          id="homeAddress"
+          placeholder="Enter home address"
+          required
+        />
+      </div>
+
       <button type="submit" class="register-button">Register</button>
     </form>
 
@@ -54,6 +119,8 @@
 </template>
 
 <script>
+import { constants } from '../../constants.js'
+
 export default {
   name: 'Register',
   data() {
@@ -62,13 +129,19 @@ export default {
       lastName: '',
       email: '',
       password: '',
+      contactNo: '',
+      creditCardExpiryDate: '',
+      creditCardName: '',
+      creditCardNo: '',
+      creditCardSecurityCode: '',
+      homeAddress: ''
     }
   },
   methods: {
     async registerUser() {
       try {
         // let USER_URL = 'http://localhost:8080/users';
-        const response = await fetch(this.API_GATEWAY_URL.concat('/users/register'), {
+        const response = await fetch(constants.API_GATEWAY_URL.concat('/users/customers/register'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -76,7 +149,13 @@ export default {
             lastName: this.lastName,
             email: this.email,
             password: this.password,
-            role: 'Customer' 
+            role: 'C',
+            contactNo: this.contactNo,
+            creditCardExpiryDate: this.creditCardExpiryDate,
+            creditCardName: this.creditCardName,
+            creditCardNo: this.creditCardNo,
+            creditCardSecurityCode: this.creditCardSecurityCode,
+            homeAddress: this.homeAddress
           })
         })
 
