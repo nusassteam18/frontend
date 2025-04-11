@@ -41,7 +41,7 @@ jobs:
           aws s3 sync ./dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }} --delete
         # --delete flag removes files in S3 that are no longer in the build output
 
-      - name: Invalidate CloudFront Cache
-        if: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID != '' }} # Only run if the secret is set
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+      # - name: Invalidate CloudFront Cache
+      #   if: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID != '' }} # Only run if the secret is set
+      #   run: |
+      #     aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
