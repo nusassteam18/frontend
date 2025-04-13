@@ -69,7 +69,7 @@ export default {
     async update(){
       try{
         if(this.user.role === "C"){
-          const res = await fetch(constants.API_GATEWAY_URL.concat(`/users/customer/${this.user.userId}`),{
+          const res = await fetch(constants.API_GATEWAY_URL.concat(`/users/customers/${this.user.userId}`),{
             method: 'PUT',
             headers: {'Content-Type':'application/json'},
             body: JSON.stringify(this.user),
