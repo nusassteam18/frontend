@@ -1,4 +1,8 @@
 <template>
+  <div v-if="fullLoaderState.show" id="full_loader">
+    <h1>Loading...</h1>
+  </div>
+
   <nav>
 
     <span v-if="!isLoggedIn">
@@ -29,11 +33,12 @@
 
 <script>
 import { authState, clearAuth } from '@/services/auth'
+import { fullLoaderState } from './stores/full-loader'
 
 export default {
   name: 'App',
   setup() {
-    return { authState }
+    return { authState, fullLoaderState }
   },
   computed: {
     isLoggedIn() {
@@ -89,5 +94,20 @@ nav a.router-link-exact-active {
 
 .logout-btn:hover {
   color: #42b983;
+}
+
+#full_loader {
+  position: absolute;
+  z-index: 2000;
+  height: 100vh;
+  width: 100%;
+  background-color: rgb(0 0 0 / 70%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#full_loader h1{
+  color: white;
 }
 </style>

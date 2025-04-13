@@ -1,11 +1,28 @@
 <template>
   <div class="menu">
     <!-- Restaurant Information -->
-    <div v-if="restaurant" class="restaurant-info">
-      <h1>{{ restaurant.name }}</h1>
-      <p class="restaurant-description">{{ restaurant.description }}</p>
-      <p class="restaurant-address">{{ restaurant.address }}</p>
+    <div v-if="restaurant">
+      <div class="restaurant-info mb-2">
+        <h1>{{ restaurant.name }}</h1>
+        <p class="restaurant-description">{{ restaurant.description }}</p>
+        <p class="restaurant-address">{{ restaurant.address }}</p>
+      </div>
+      
+      <div class="restaurant-info restaurant-rating-wrapper py-2">
+        <p class="fs-3 mb-0">{{ restaurant.averageScore }}</p>
+        <star-rating  
+        :rating="calculateStar(restaurant.averageScore)" 
+        :read-only="true"
+        :fixed-points="1"
+        :increment="0.01"
+        :show-rating="false"
+        :star-size="16">
+        </star-rating>
+        <p class="font-lighter mb-0">({{ restaurant.rateCount }})</p>
+        <font-awesome-icon v-if="isSignedIn && isShowRatingButton" :icon="['fas', 'heart']"  class="btn" id="btn_rate" title="Rate Now" data-bs-toggle="modal" data-bs-target="#ratingModal"/>
+      </div>
     </div>
+    
     <div v-else>
       <h1>Food Menu</h1>
       <div v-if="!loading" class="restaurant-selector">
@@ -44,6 +61,31 @@
       </router-link>
     </div>
   </div>
+
+  <div class="modal fade" id="ratingModal" ref="ratingModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title" id="ratingModalLabel">Rate This Restaurant!</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex justify-content-center mb-2">
+            <star-rating 
+            :star-size="30" 
+            :show-rating="false" 
+            :rating="rating.score" 
+            v-model:rating="rating.score"></star-rating>
+          </div>
+          <textarea class="form-control" placeholder="Leave a comment here" v-model="rating.description"></textarea>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-sm btn-primary" @click="submitRating">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -51,9 +93,19 @@ import menuService from "@/services/menuService";
 import restaurantService from "@/services/restaurantService";
 import cartStore from "@/store/cart";
 import { authState } from "@/services/auth";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min.js";
+import StarRating from 'vue-star-rating';
+import ratingService from "@/services/ratingService";
+import Rating from "@/models/Rating";
+import { fullLoaderState } from "@/stores/full-loader";
 
 export default {
   name: "MenuView",
+  components: {
+    StarRating
+  },
   data() {
     return {
       products: [],
@@ -63,6 +115,12 @@ export default {
       restaurant: null,
       selectedRestaurantId: null,
       cartVersion: 0,
+      rating: new Rating({
+        customerId: authState.userId,
+        score: 1,
+      }),
+      isShowRatingButton: false,
+      ratingModalInstance: null,
     };
   },
   computed: {
@@ -83,6 +141,9 @@ export default {
       return this.selectedRestaurantId 
         ? `/cart/${this.selectedRestaurantId}` 
         : '/cart';
+    },
+    isSignedIn() {
+      return authState.userId;
     }
   },
   methods: {
@@ -161,6 +222,55 @@ export default {
         this.cartItems = cartStore.getCartItems(this.selectedRestaurantId);
       }
     },
+    resetRating() {
+      this.rating.score = 1;
+      this.rating.description = '';
+    },
+    calculateStar(rating) {
+      if (!rating) {
+        return 0;
+      }
+      return rating;
+    },
+    async submitRating() {
+      if (this.rating.score < 0) {
+        alert('Please rate at least 1 star!');
+        return;
+      }
+
+      if (!confirm(`Proceed to submit restaurant rating?`)) {
+        return;
+      }
+
+      this.rating.restaurantId = this.selectedRestaurantId;
+      this.showFullLoader();
+      const response = await ratingService.submitRating(this.rating);
+
+      if (response) {
+        this.ratingModalInstance.hide();
+        this.isShowRatingButton = false;
+        this.restaurant = await restaurantService.getRestaurantById(this.selectedRestaurantId);
+      }
+
+      this.hideFullLoader();
+    },
+    async isUserRatedThisRestaurant() {
+      try {
+        const rating = await ratingService.getRatingByRestaurantIdAndCustomerId(this.selectedRestaurantId, authState.userId);
+
+        if (rating.createdAt === null) {
+          this.isShowRatingButton = true;
+        }
+      } catch (error) {
+        console.error('Error fetching rating data: ' + error);
+      }
+    },
+    showFullLoader() {
+      fullLoaderState.show = true;
+    },
+    hideFullLoader() {
+      fullLoaderState.show = false;
+    }
   },
   watch: {
     // When route changes, refresh menu if restaurant ID is in the URL
@@ -178,8 +288,17 @@ export default {
   async created() {
     await this.fetchRestaurants();
     await this.fetchMenuItems();
+    await this.isUserRatedThisRestaurant();
     this.refreshCart();
+    this.resetRating();
   },
+  mounted() {
+    this.ratingModalInstance = new Modal(this.$refs.ratingModal);
+    this.$refs.ratingModal.addEventListener('hidden.bs.modal', this.resetRating);
+  },
+  beforeUnmount() {
+    this.$refs.ratingModal.removeEventListener('hidden.bs.modal', this.resetRating);
+  }
 };
 </script>
 
@@ -201,6 +320,24 @@ h1 {
   background-color: #f8f9fa;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.restaurant-rating-wrapper {
+  background-color: rgb(232 244 255);
+}
+
+#btn_rate {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  font-size: 20px;
+  color: rgb(230, 81, 54);
+}
+
+#btn_rate:hover {
+  color: rgb(190, 62, 40);
+  transform: scale(1.1);
 }
 
 .restaurant-description {
@@ -318,5 +455,9 @@ h1 {
   color: white;
   text-decoration: none;
   font-weight: bold;
+}
+
+.vue-star-rating {
+  justify-content: center;
 }
 </style>
