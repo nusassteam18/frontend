@@ -35,7 +35,7 @@ export default {
       });
 
       if (response.ok) {
-        return new Rating(response.json());
+        return new Rating(await response.json());
       }
       else{
         const errorData = await response.json();
@@ -44,6 +44,29 @@ export default {
       }
     } catch (error) {
       console.log('Error submitting rating: ' + error);
+    }
+  },
+  
+  // Update rating
+  async updateRating(rating) {
+    try {
+      const response = await fetch(`${constants.API_GATEWAY_URL}/restaurants/ratings/${rating.ratingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rating)
+      });
+      
+      if (response.ok) {
+        return new Rating(await response.json());
+      }
+      else{
+        const errorData = await response.json();
+        alert('Failed to update rating: ' + errorData.message);
+        return false;
+      }
+      
+    } catch (error) {
+      console.log('Error updating rating: ' + error);
     }
   }
 };

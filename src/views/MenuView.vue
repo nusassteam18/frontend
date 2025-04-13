@@ -19,7 +19,7 @@
         :star-size="16">
         </star-rating>
         <p class="font-lighter mb-0">({{ restaurant.rateCount }})</p>
-        <font-awesome-icon v-if="isSignedIn && isShowRatingButton" :icon="['fas', 'heart']"  class="btn" id="btn_rate" title="Rate Now" data-bs-toggle="modal" data-bs-target="#ratingModal"/>
+        <font-awesome-icon v-if="isSignedIn" :icon="['fas', 'heart']"  class="btn" id="btn_rate" title="Rate Now" data-bs-toggle="modal" data-bs-target="#ratingModal"/>
       </div>
     </div>
     
@@ -115,9 +115,15 @@ export default {
       restaurant: null,
       selectedRestaurantId: null,
       cartVersion: 0,
+      oriRating: new Rating({
+        customerId: authState.userId,
+        score: 1,
+        description: ''
+      }),
       rating: new Rating({
         customerId: authState.userId,
         score: 1,
+        description: ''
       }),
       isShowRatingButton: false,
       ratingModalInstance: null,
@@ -224,7 +230,9 @@ export default {
     },
     resetRating() {
       this.rating.score = 1;
-      this.rating.description = '';
+      this.rating.description = null;
+      this.rating.createdAt = null;
+      this.rating.ratingId = null;
     },
     calculateStar(rating) {
       if (!rating) {
@@ -244,22 +252,31 @@ export default {
 
       this.rating.restaurantId = this.selectedRestaurantId;
       this.showFullLoader();
-      const response = await ratingService.submitRating(this.rating);
 
-      if (response) {
+      let ratingSubmitted = null;
+
+      if (this.oriRating.createdAt === null) {
+        ratingSubmitted = await ratingService.submitRating(this.rating);
+      }
+      else {
+        ratingSubmitted = await ratingService.updateRating(this.rating);
+      }
+
+      if (ratingSubmitted) {
         this.ratingModalInstance.hide();
         this.isShowRatingButton = false;
         this.restaurant = await restaurantService.getRestaurantById(this.selectedRestaurantId);
+        this.updateOriRating(ratingSubmitted);
       }
 
       this.hideFullLoader();
     },
     async isUserRatedThisRestaurant() {
       try {
-        const rating = await ratingService.getRatingByRestaurantIdAndCustomerId(this.selectedRestaurantId, authState.userId);
+        const ratingHistory = await ratingService.getRatingByRestaurantIdAndCustomerId(this.selectedRestaurantId, authState.userId);
 
-        if (rating.createdAt === null) {
-          this.isShowRatingButton = true;
+        if (ratingHistory.createdAt !== null) {
+          this.updateOriRating(ratingHistory);
         }
       } catch (error) {
         console.error('Error fetching rating data: ' + error);
@@ -270,6 +287,24 @@ export default {
     },
     hideFullLoader() {
       fullLoaderState.show = false;
+    }, 
+    updateOriRating({ score, description, createdAt, ratingId }) {
+      this.oriRating.score = score;
+      this.oriRating.description = description;
+      this.oriRating.createdAt = createdAt;
+      this.oriRating.ratingId = ratingId;
+    },
+    updateRating({ score, description, createdAt, ratingId }) {
+      this.rating.score = score;
+      this.rating.description = description;
+      this.rating.createdAt = createdAt;
+      this.rating.ratingId = ratingId;
+    }, 
+    openRatingModal() {
+      this.updateRating(this.oriRating);
+    },
+    hideRatingModal() {
+
     }
   },
   watch: {
@@ -286,17 +321,19 @@ export default {
     },
   },
   async created() {
+    this.resetRating();
     await this.fetchRestaurants();
     await this.fetchMenuItems();
     await this.isUserRatedThisRestaurant();
     this.refreshCart();
-    this.resetRating();
   },
   mounted() {
     this.ratingModalInstance = new Modal(this.$refs.ratingModal);
+    this.$refs.ratingModal.addEventListener('show.bs.modal', this.openRatingModal);
     this.$refs.ratingModal.addEventListener('hidden.bs.modal', this.resetRating);
   },
   beforeUnmount() {
+    this.$refs.ratingModal.removeEventListener('show.bs.modal', this.openRatingModal);
     this.$refs.ratingModal.removeEventListener('hidden.bs.modal', this.resetRating);
   }
 };
