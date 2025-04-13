@@ -16,12 +16,8 @@
         <router-link to="/">Restaurant</router-link> | </template>
       <router-link to="/profile">Profile</router-link> |
       <router-link to="/updateProfile">Update Profile</router-link> |
-      <template v-if="userRole === 'C'">
-        <router-link to="/rate">Rate</router-link> |
-    
 
-      </template>
-      <template v-else-if="userRole === 'A'">
+      <template v-if="userRole === 'A'">
         <router-link to="/admin">Admin</router-link> |
         <router-link to="/restaurant/report">Report</router-link> |
       </template>
