@@ -82,7 +82,7 @@ export default {
           }
         }
         else {
-          const res = await fetch(constants.API_GATEWAY_URL.concat(`/users/admin/${this.user.id}`),{
+          const res = await fetch(constants.API_GATEWAY_URL.concat(`/users/admins/${this.user.id}`),{
             method: 'PUT',
             headers: {'Content-Type':'application/json'},
             body: JSON.stringify(this.user),
