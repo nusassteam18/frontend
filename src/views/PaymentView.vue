@@ -140,7 +140,7 @@ export default {
   computed: {
     // Calculate the total order amount
     total() {
-      return this.cartItems.reduce((sum, item) => sum + item.price, 0)
+      return this.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
     }
   },
   methods: {
