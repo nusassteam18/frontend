@@ -100,12 +100,13 @@ export default {
   const creditCardExpiryDate = data.creditCardExpiryDate
   const creditCardSecurityCode = data.creditCardSecurityCode
   const homeAddress = data.homeAddress
+  const restaurantName = data.restaurantName
   console.log('Extracted userId:', userId)
 
   if (userId) {
     // setAuth(data.token, 'Customer', userId)
     // console.log('After setAuth: authToken =', localStorage.getItem('authToken'))
-    setAuth(role, userId, restaurantId, firstName, lastName, email, password, contactNo, creditCardNo, creditCardName, creditCardExpiryDate, creditCardSecurityCode, homeAddress)
+    setAuth(role, userId, restaurantId, firstName, lastName, email, password, contactNo, creditCardNo, creditCardName, creditCardExpiryDate, creditCardSecurityCode, homeAddress, restaurantName)
     // console.log('After setAuth: userRole =', localStorage.getItem('userRole'))
     // console.log('After setAuth: userId =', localStorage.getItem('userId'))
   } else {
@@ -114,12 +115,16 @@ export default {
     return
   }
 
-  alert('Login successful!')
-
-  if (role == 'A')
+  if (role == 'A') {
+    alert(`Login successful. You are logged in as an admin${restaurantName == 'undefined' ? '' : ' for ' + restaurantName}.`)
     this.$router.push('/admin')
-  else
+  }
+    
+  else {
+    alert(`Login successful. Welcome ${firstName} ${lastName}!`)
     this.$router.push('/')
+  }
+
   } catch (error) {
     if (error === 404) {
       alert(`Login failed: Invalid credentials`)

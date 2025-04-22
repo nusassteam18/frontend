@@ -62,7 +62,7 @@
               <p><strong>Dish Name:</strong> {{ item.name }}</p>
               <!-- <p><strong>Special Instruction:</strong> {{ item.specialInstruction }}</p> -->
               <p><strong>Quantity:</strong> {{ item.quantity }}</p>
-              <p><strong>Subtotal:</strong> ${{ item.price.toFixed(2) }}</p>
+              <p><strong>Subtotal:</strong> ${{ (item.price * item.quantity).toFixed(2) }}</p>
             </div>
           </div>
         </div>
@@ -155,7 +155,7 @@ export default {
             productId: item.productId,
             quantity: item.quantity,
             description: null,
-            price: item.price
+            price: item.price * item.quantity
           }
         })
         let requestBody = JSON.stringify({
@@ -178,14 +178,25 @@ export default {
         }
       })
 
-      const orderId = await response.json()
+      const sendOrderResponse = await response.json()
+
       console.log('Send Order response data: ')
-      console.dir(orderId)
+      console.dir(sendOrderResponse)
 
-      cartStore.clearCart();
-      alert('Paid! Your order id is ' + orderId);
-      this.$router.push("/");
+      if (sendOrderResponse.returnCode == constants.SUCCESS || sendOrderResponse.returnCode == constants.SUCCESS_BUT_SEND_EMAIL_FAILED) {
+        cartStore.clearCart();
 
+        if (sendOrderResponse.returnCode == constants.SUCCESS)
+          alert('Paid! Your order id is ' + sendOrderResponse.orderId + '. Order Receipt is sent to your Email');
+        else
+          alert('Paid! Your order id is ' + sendOrderResponse.orderId + '. Sending of Order Receipt via email failed.');
+
+        this.$router.push("/");
+      } else {
+        alert('An error has occurred.')
+        console.error('Error message from response: ', sendOrderResponse.errorMessage)
+      }
+      
       } catch (error) {
         if (error === 404) {
           alert(`Cannot find resource.`)

@@ -123,10 +123,12 @@ const updateOrderStatus = async (order) => {
           }
       })
       // console.dir(orders.value)
-      if (response.returnCode === constants.SUCCESS)
-        alert(`Order ${response.orderId} status updated to ${response.status} at ${formatDateTime(response.updatedAt)}. Order update email is sent successfully.`)
-      else 
+      if (response.returnCode === constants.SUCCESS) {
+          alert(`Order ${response.orderId} status updated to ${response.status} at ${formatDateTime(response.updatedAt)}. Order update email is sent successfully.`)
+      } else {
+        console.error("An error has occurred. Error code: " + response.returnCode + ". Error message: " + response.errorMessage)
         alert(`Order ${response.orderId} status updated to ${response.status} at ${formatDateTime(response.updatedAt)} but failed to send email.`)
+      } 
     }
   }
 }

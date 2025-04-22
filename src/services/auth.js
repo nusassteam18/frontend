@@ -37,10 +37,11 @@ export const authState = reactive({
   creditCardName: localStorage.getItem('creditCardName') || null, 
   creditCardExpiryDate: localStorage.getItem('creditCardExpiryDate') || null, 
   creditCardSecurityCode: localStorage.getItem('creditCardSecurityCode') || null, 
-  homeAddress: localStorage.getItem('homeAddress') || null
+  homeAddress: localStorage.getItem('homeAddress') || null,
+  restaurantName: localStorage.getItem('restaurantName') || null
 })
 
-export function setAuth(role, userId, restaurantId, firstName, lastName, email, password, contactNo, creditCardNo, creditCardName, creditCardExpiryDate, creditCardSecurityCode, homeAddress) {
+export function setAuth(role, userId, restaurantId, firstName, lastName, email, password, contactNo, creditCardNo, creditCardName, creditCardExpiryDate, creditCardSecurityCode, homeAddress, restaurantName) {
   authState.role = role
   authState.userId = userId
   authState.restaurantId = restaurantId
@@ -54,6 +55,7 @@ export function setAuth(role, userId, restaurantId, firstName, lastName, email, 
   authState.creditCardExpiryDate = creditCardExpiryDate
   authState.creditCardSecurityCode = creditCardSecurityCode
   authState.homeAddress = homeAddress
+  authState.restaurantName = restaurantName
 
   localStorage.setItem('userRole', role)
   localStorage.setItem('userId', userId)
@@ -68,6 +70,7 @@ export function setAuth(role, userId, restaurantId, firstName, lastName, email, 
   localStorage.setItem('creditCardExpiryDate', creditCardExpiryDate)
   localStorage.setItem('creditCardSecurityCode', creditCardSecurityCode)
   localStorage.setItem('homeAddress', homeAddress)
+  localStorage.setItem('restaurantName', restaurantName)
 }
 
 export function clearAuth() {
@@ -84,6 +87,7 @@ export function clearAuth() {
   authState.creditCardExpiryDate = null
   authState.creditCardSecurityCode = null
   authState.homeAddress = null
+  authState.restaurantName = null
 
   localStorage.removeItem('userRole')
   localStorage.removeItem('userId')
@@ -98,4 +102,5 @@ export function clearAuth() {
   localStorage.removeItem('creditCardExpiryDate')
   localStorage.removeItem('creditCardSecurityCode')
   localStorage.removeItem('homeAddress')
+  localStorage.removeItem('restaurantName')
 }
