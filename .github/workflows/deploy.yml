@@ -38,8 +38,8 @@ jobs:
 
       - name: Deploy static site to S3 bucket
         run: |
-          aws s3 sync ./dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }} --delete
-          aws s3 sync ./dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ github.sha }} --delete
+          aws s3 sync ./dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/latest --delete
+          aws s3 sync ./dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/archive/${{ github.sha }} --delete
           
         # --delete flag removes files in S3 that are no longer in the build output
 
