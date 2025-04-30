@@ -2,7 +2,7 @@
   <div class="home">
     <div class="hero">
       <div class="hero-content">
-        <h1>The Seasoned Spoon 2</h1>
+        <h1>The Seasoned Spoon</h1>
         <p>Choose from a variety of restaurants to order from and fulfill your cravings.</p>
       </div>
     </div>
